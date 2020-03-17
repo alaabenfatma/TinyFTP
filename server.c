@@ -4,6 +4,7 @@
 #define NPROC 5
 
 pid_t* child_processes;
+char* query;
 
 void echo(int connfd);
 
@@ -26,12 +27,7 @@ int main(int argc, char **argv)
     //All child processes
     child_processes = malloc(NPROC*sizeof(pid_t));
 
-    if (argc != 2)
-    {
-        fprintf(stderr, "usage: %s <port>\n", argv[0]);
-        exit(0);
-    }
-    port = atoi(argv[1]);
+    port = 2121;
 
     clientlen = (socklen_t)sizeof(clientaddr);
 
@@ -65,7 +61,6 @@ int main(int argc, char **argv)
 
             printf("server connected to %s (%s)\n", client_hostname,
                    client_ip_string);
-            
 
             echo(connfd);
             Close(connfd);

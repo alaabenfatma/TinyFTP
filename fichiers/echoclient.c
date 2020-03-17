@@ -9,12 +9,12 @@ int main(int argc, char **argv)
     char *host, buf[MAXLINE];
     rio_t rio;
 
-    if (argc != 2) {
-        fprintf(stderr, "usage: %s <host> \n", argv[0]);
+    if (argc != 3) {
+        fprintf(stderr, "usage: %s <host> <port>\n", argv[0]);
         exit(0);
     }
     host = argv[1];
-    port = 2121;
+    port = atoi(argv[2]);
 
     /*
      * Note that the 'host' can be a name or an IP address.
@@ -31,11 +31,8 @@ int main(int argc, char **argv)
     printf("client connected to server OS\n"); 
     
     Rio_readinitb(&rio, clientfd);
-    while (1) {
-        printf("ftp>");
-        if(Fgets(buf, MAXLINE, stdin) == NULL){
-            break;
-        }
+
+    while (Fgets(buf, MAXLINE, stdin) != NULL) {
         Rio_writen(clientfd, buf, strlen(buf));
         if (Rio_readlineb(&rio, buf, MAXLINE) > 0) {
             Fputs(buf, stdout);
