@@ -2,6 +2,8 @@
  * echoclient.c - An echo client
  */
 #include "csapp.h"
+#include "param.h"
+
 
 int main(int argc, char **argv)
 {
@@ -40,12 +42,14 @@ int main(int argc, char **argv)
         f = fopen("transfered","w");
         
         Rio_writen(clientfd, buf, strlen(buf));
-        if (Rio_readlineb(&rio, buf, MAXLINE) > 0) {
+        ssize_t seen;
+        while ((seen=Rio_readnb(&rio, buf, buffSize)) > 0) {
+            if(buf[0] == EOF){
+                break;
+            }
             Fputs(buf, f);
-            fclose(f);
-        } else { /* the server has prematurely closed the connection */
-            break;
-        }
+            fflush(f);
+        } 
     }
     Close(clientfd);
     exit(0);

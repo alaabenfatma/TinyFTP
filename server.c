@@ -1,4 +1,5 @@
 #include "csapp.h"
+#include "param.h"
 
 #define MAX_NAME_LEN 256
 #define NPROC 5
