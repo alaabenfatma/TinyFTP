@@ -6,7 +6,7 @@
 pid_t* child_processes;
 char* query;
 
-void echo(int connfd);
+void get(int connfd);
 
 void handler(int signal){
     for(int i=0;i<NPROC;i++){
@@ -62,7 +62,7 @@ int main(int argc, char **argv)
             printf("server connected to %s (%s)\n", client_hostname,
                    client_ip_string);
 
-            echo(connfd);
+            get(connfd);
             Close(connfd);
         }
     }
