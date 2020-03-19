@@ -15,11 +15,11 @@ LDFLAGS =
 #LIBS += -lsocket -lnsl -lrt
 LIBS += -lpthread
 
-INCLUDE = csapp.h
-OBJS = csapp.o  echo.o
+INCLUDE = libs/csapp.h
+OBJS = libs/csapp.o  server/echo.o
 INCLDIR = -I.
 
-PROGS = server client
+PROGS = server/server client/client
 
 
 all: $(PROGS)
@@ -32,4 +32,4 @@ all: $(PROGS)
 #	$(CC) -o $@ $(LDFLAGS) $(LIBS) $^
 	
 clean:
-	rm -f $(PROGS) *.o
+	rm -f libs/$(PROGS) client/$(PROGS) server/$(PROGS) server/*.o client/*.o libs/*.o
