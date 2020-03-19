@@ -16,18 +16,20 @@ void get(int connfd)
     FILE *f;
 
     while ((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0)
-    {
+    { 
         //On enleve le retour chariot
         query = strdup(buf);
-
+      
         for (int i = 0; query[i] != '\0'; i++)
         {
+             
             if (query[i] == '\n')
             {
                 query[i] = '\0';
             }
+            
         }
-
+        puts(query);
         //get the filename
         if ((strlen(query) > 4) && (query[0] == 'g') && (query[1] == 'e') && (query[2] == 't') && (query[3] == ' '))
         {
@@ -48,6 +50,9 @@ void get(int connfd)
             fileBuffer[0] = EOF;
             Rio_writen(connfd, fileBuffer, sizeof(fileBuffer));
             printf("Fichier transferé\n");
+        }
+        else{
+            return ;
         }
     }
 }

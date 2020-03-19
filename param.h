@@ -1,3 +1,3 @@
 //Parametres et defines utiles..
 
-#define buffSize 2 //must be >= 2 
+#define buffSize 200 //must be >= 2 
