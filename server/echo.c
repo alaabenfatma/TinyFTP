@@ -3,11 +3,8 @@
  */
 #include "../libs/csapp.h"
 #include "../libs/param.h"
-int StartsWith(const char *a, const char *b)
-{
-   if(strncmp(a, b, strlen(b)) == 0) return 1;
-   return 0;
-}
+#include "../libs/cmds.h"
+
 
 void get(int connfd)
 {
@@ -40,11 +37,7 @@ void get(int connfd)
         if (StartsWith(query,"get"))
         {
             filename = malloc(8 * sizeof(char));
-            for (int i = 4; i < 12; i++)
-            {
-                filename[i - 4] = query[i];
-                filename[i - 3] = '\0';
-            }
+            filename = getFirstArgument(query);
 
             //start transfert
             f = fopen(filename, "r");

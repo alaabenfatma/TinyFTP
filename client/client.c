@@ -3,8 +3,9 @@
  */
 #include "../libs/csapp.h"
 #include "../libs/param.h"
+#include "../libs/cmds.h"
 
-char folder[] = "downloads";
+char folder[] = "downloads/";
 int main(int argc, char **argv)
 {
     int clientfd, port;
@@ -43,8 +44,10 @@ int main(int argc, char **argv)
         {
             break;
         }
-        puts(buf);
-        f = fopen("downloads/transfered", "w");
+        char *output = getFirstArgument(buf);
+        output = strcat(folder,output);
+        puts(output);
+        f = fopen(output, "w");
 
         Rio_writen(clientfd, buf, strlen(buf));
         ssize_t seen;
