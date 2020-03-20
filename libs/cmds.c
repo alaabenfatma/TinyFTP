@@ -6,20 +6,27 @@ int StartsWith(const char *a, const char *b)
         return 1;
     return 0;
 }
-char *getFirstArgument(char cmd[]){
-    char *argument=malloc(MAXLINE);
-    if(StartsWith(cmd,"get")){
+
+char *getFirstArgument(char cmd[])
+{
+    char *argument = malloc(MAXLINE);
+    if (StartsWith(cmd, "get"))
+    {
         int j = 0;
         for (int i = 4; i < strlen(cmd); i++)
         {
-           argument[j] = cmd[i];
-           j++;
+            argument[j] = cmd[i];
+            j++;
         }
     }
-    else if(StartsWith(cmd,"set")){
-
+    else if (StartsWith(cmd, "echo"))
+    {
+        int j = 0;
+        for (int i = 5; i < strlen(cmd); i++)
+        {
+            argument[j] = cmd[i];
+            j++;
+        }
     }
-    puts(argument);
     return argument;
-
 }

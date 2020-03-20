@@ -1,72 +1,58 @@
+/*
+ * echoserveri.c - An iterative echo server
+ */
+
 #include "../libs/csapp.h"
-#include "../libs/param.h"
+#include "../libs/utils.h"
+#include "../libs/cmds.h"
 
 #define MAX_NAME_LEN 256
-#define NPROC 5
 
-pid_t* child_processes;
-char* query;
+void echo(int connfd);
 
-void get(int connfd);
-
-void handler(int signal){
-    for(int i=0;i<NPROC;i++){
-        Kill(child_processes[i],SIGINT);
-    }
-    exit(0);
-}
-
+/* 
+ * Note that this code only works with IPv4 addresses
+ * (IPv6 is not supported)
+ */
 int main(int argc, char **argv)
 {
 
+/* ------------------------------- init slaves ------------------------------ */
+    for (int i = 0; i < NPROC; i++)
+    {
+        Fork();
+    }
+    
     int listenfd, connfd, port;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
     char client_ip_string[INET_ADDRSTRLEN];
     char client_hostname[MAX_NAME_LEN];
     
-    //All child processes
-    child_processes = malloc(NPROC*sizeof(pid_t));
-
+    
     port = 2121;
-
+    
     clientlen = (socklen_t)sizeof(clientaddr);
 
     listenfd = Open_listenfd(port);
-
-    //POOL
-    pid_t pid = 1;
-    for (int i = 0; i < NPROC; i++)
-    {
-        if (pid > 0)
-        {
-            pid = Fork();
-            child_processes[i] = pid;
-        }
-    }
-
-    while (1)
-    {
+    while (1) {
         
-        if (pid == 0)
-        {
-            connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
+        connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
+        printf("Hi");
+        /* determine the name of the client */
+        Getnameinfo((SA *) &clientaddr, clientlen,
+                    client_hostname, MAX_NAME_LEN, 0, 0, 0);
+        
+        /* determine the textual representation of the client's IP address */
+        Inet_ntop(AF_INET, &clientaddr.sin_addr, client_ip_string,
+                  INET_ADDRSTRLEN);
+        
+        printf("server connected to %s (%s)\n", client_hostname,
+               client_ip_string);
 
-            /* determine the name of the client */
-            Getnameinfo((SA *)&clientaddr, clientlen,
-                        client_hostname, MAX_NAME_LEN, 0, 0, 0);
-
-            /* determine the textual representation of the client's IP address */
-            Inet_ntop(AF_INET, &clientaddr.sin_addr, client_ip_string,
-                      INET_ADDRSTRLEN);
-
-            printf("server connected to %s (%s)\n", client_hostname,
-                   client_ip_string);
-
-            get(connfd);
-            Close(connfd);
-        }
+        echo(connfd);
+        Close(connfd);
     }
-    Wait(NULL);
     exit(0);
 }
+
