@@ -8,7 +8,6 @@
 
 #define MAX_NAME_LEN 256
 
-void echo(int connfd);
 void handler(int signal)
 {
     for (int i = 0; i < NPROC; i++)
@@ -50,6 +49,7 @@ int main(int argc, char **argv)
     {
         if (pid == 0)
         {
+            
             connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
 
             /* determine the name of the client */
@@ -63,8 +63,11 @@ int main(int argc, char **argv)
             printf("server connected to %s (%s)\n", client_hostname,
                    client_ip_string);
 
-            echo(connfd);
-            Close(connfd);
+            cmd(connfd);
+            
+        }
+        else{
+            
         }
     }
     Wait(NULL);

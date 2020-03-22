@@ -4,84 +4,60 @@
 #include "../libs/csapp.h"
 #include "../libs/utils.h"
 #include "../libs/cmds.h"
-void echo(int connfd)
+int Connfd;
+void cmd(int connfd)
 {
+    Connfd = connfd;
     size_t n;
-    char buf[MAXLINE];
+    char query[MAXLINE];
     rio_t rio;
-
-    Rio_readinitb(&rio, connfd);
-    while ((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0) {
+    Rio_readinitb(&rio, Connfd);
+    while ((n = Rio_readlineb(&rio, query, MAXLINE)) != 0)
+    {
         printf("server received %u bytes\n", (unsigned int)n);
-        printf("Le client a écrit \n: %s",buf);
-        Rio_writen(connfd, buf, n);
+
+        if (StartsWith(query, "echo"))
+        {
+
+            echo(getFirstArgument(query));
+        }
+        else if (StartsWith(query, "get"))
+        {
+            get(getFirstArgument(query));
+        }
     }
 }
-void get(int connfd)
+void echo(char *msg)
 {
-    size_t n;
-    char buf[MAXLINE];
-    rio_t rio;
-    Rio_readinitb(&rio, connfd);
-    char *query = "";
-    char *filename = "";
-    char fileBuffer[buffSize];
-    char *response = malloc(MAXLINE);
-    int fd_file;
-    size_t size;
-    int clientIsPresent;
-    while ((n = Rio_readlineb(&rio, buf, MAXLINE)) != 0)
+    printf("Client sent : %s\n", msg);
+    strcpy(msg, "Server has received your message.");
+    Rio_writen(Connfd, msg, buffSize);
+}
+void get(char *filename)
+{
+    printf("We will try to transfer the file %s to the client %d", filename, Connfd);
+    int error = 0;
+    FILE *f;
+    char buffer[buffSize];;
+    f = fopen(filename, "rb");
+    if (f == NULL)
     {
-        //On enleve le retour chariot
-        query = strdup(buf);
-
-        for (int i = 0; query[i] != '\0'; i++)
-        {
-
-            if (query[i] == '\n')
-            {
-                query[i] = '\0';
-            }
-        }
-        //get the filename
-        if (StartsWith(query, "get"))
-        {
-            filename = malloc(8 * sizeof(char));
-            filename = getFirstArgument(query);
-
-            //start transfert
-            if ((fd_file = open(filename, O_RDONLY, NULL)) > 0)
-            {
-                size = fileProperties(filename).st_size;
-                printf("The file is of size : %lu\n", size);
-                Rio_writen(connfd, &size, sizeof(size));
-
-                Rio_readinitb(&rio, fd_file);
-
-                clientIsPresent = 1;
-
-                while ((n = Rio_readnb(&rio, fileBuffer, buffSize)) != 0 && clientIsPresent != 0)
-                {
-                    if (rio_writen(connfd, fileBuffer, n) == -1)
-                    {
-                        printf("La connexion a un client a été perdu");
-                        clientIsPresent = 0;
-                    }
-                    usleep(1000);
-                }
-
-                close(fd_file);
-            }
-            else
-            {
-                response = "File does not exist.\nOperation cancelled.";
-            }
-            Rio_writen(connfd, response, MAXLINE);
-        }
-        else
-        {
-            return;
-        }
+        error = 1;
+        printf("an error has occured %d ", error);
     }
-    Close(connfd);
+    else
+    {
+        
+        int read_size;
+            do 
+            {
+                read_size = fread(buffer, 1, buffSize, f);
+                Rio_writen(Connfd, buffer, buffSize);
+                printf("%s",buffer);
+            }while(read_size > 0);
+            strcpy(buffer,"\0");
+            Rio_writen(Connfd, buffer, buffSize);
+        fclose(f);
+    }
+    printf("File has been sent.");
 }
