@@ -40,7 +40,7 @@ void get(char *filename)
     FILE *f;
     char buffer[buffSize];
     ;
-    f = fopen(filename, "r");
+    f = fopen(filename, "rb");
     if (f == NULL)
     {
         error = 1;
@@ -51,11 +51,14 @@ void get(char *filename)
 
         /*int position = 0;
         fseek(f,position,SEEK_CUR);*/
-        while(Fread(buffer,1,buffSize,f)>0){
+        while(Fgets(buffer,buffSize,f)>0){
             Rio_writen(Connfd,buffer,buffSize);
+            Fputs(buffer,stdout);
         }
         buffer[0]=EOF;
         Rio_writen(Connfd,buffer,buffSize);
+                    Fputs(buffer,stdout);
+
 
     }
 }

@@ -7,7 +7,7 @@
 
 int main(int argc, char **argv)
 {
-    char filename[]= "downloads/";
+    char filename[FILENAME_MAX];
     int clientfd, port;
 
     char *host;
@@ -52,6 +52,7 @@ int main(int argc, char **argv)
         }
         else if (StartsWith(query, "get"))
         {
+            strcpy(filename, "downloads/");
             ssize_t s;
             char contents[buffSize];
             strcat(filename,getFirstArgument(query));
@@ -62,13 +63,15 @@ int main(int argc, char **argv)
             Rio_readinitb(&rio,clientfd);
             while ((s = Rio_readlineb(&rio, contents, buffSize)) > 0)
             {
-                if (contents[0] == EOF)
+                if (contents[0] == EOF || sizeof contents == 0)
                 {
                     break;
                 }
                 Fputs(contents, f);
-                fflush(f);
+               
             }
+             fflush(f);
+             fclose(f);
             gettimeofday(&stop, NULL);
             double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
             off_t file_size = fileProperties(filename).st_size;
