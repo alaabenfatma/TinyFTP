@@ -4,10 +4,10 @@
 #include "../libs/csapp.h"
 #include "../libs/utils.h"
 #include "../libs/cmds.h"
-char *filename;
+
 int main(int argc, char **argv)
 {
-    filename = "downloads/";
+    char filename[]= "downloads/";
     int clientfd, port;
 
     char *host;
@@ -54,7 +54,7 @@ int main(int argc, char **argv)
         {
             ssize_t s;
             char contents[buffSize];
-            filename = getFirstArgument(query);
+            strcat(filename,getFirstArgument(query));
             FILE *f;
             f= fopen(filename, "w");
             struct timeval stop, start;
