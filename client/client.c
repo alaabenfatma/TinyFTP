@@ -5,6 +5,8 @@
 #include "../libs/utils.h"
 #include "../libs/cmds.h"
 struct timeval stop, start;
+ int clientfd, port;
+
 bool downloading = false;
 char filename[FILENAME_MAX];
 void handler(int s)
@@ -19,17 +21,18 @@ void handler(int s)
         FILE *tmp;
         tmp = fopen("crash.log", "w");
         strcpy(filename, strremove(filename,"downloads/")); 
-        fprintf(tmp,"%s,%ld",filename,size);
+        fprintf(tmp,"%s,%d",filename,downloading);
         fclose(tmp);
     }
+    Close(clientfd);
+
     exit(1);
 }
 int main(int argc, char **argv)
 {
     Signal(SIGINT,handler);
     
-    int clientfd, port;
-
+   
     char *host;
 
     rio_t rio;
@@ -76,7 +79,7 @@ int main(int argc, char **argv)
             
             Rio_readinitb(&rio, clientfd);
             char contents[buffSize];
-            if ((Rio_readlineb(&rio, contents, buffSize)) > 0)
+            if ((Rio_readnb(&rio, contents, 1)) > 0)
             {
                 if (StartsWith(contents, "-"))
                 {
@@ -97,14 +100,16 @@ int main(int argc, char **argv)
             f = fopen(filename, "w");
             gettimeofday(&start, NULL);
             Rio_readinitb(&rio, clientfd);
-            while ((s = Rio_readlineb(&rio, contents, buffSize)) > 0)
+
+            while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
             {
                 if (contents[0] == EOF || sizeof contents == 0)
                 {
                     break;
                 }
+                Rio_readnb(&rio,&downloading,__SIZEOF_LONG__);
                 Fputs(contents, f);
-                downloading =+sizeof(contents);
+                printf("%d\n",downloading);
                 fflush(stdout);
 
             }
@@ -131,7 +136,7 @@ int main(int argc, char **argv)
 
             Rio_readinitb(&rio, clientfd);
             char contents[buffSize];
-            if ((Rio_readlineb(&rio, contents, buffSize)) > 0)
+            if ((Rio_readnb(&rio, contents, 1)) > 0)
             {
                 if (StartsWith(contents, "-"))
                 {
@@ -151,7 +156,7 @@ int main(int argc, char **argv)
             f = fopen(filename, "a");
             gettimeofday(&start, NULL);
             Rio_readinitb(&rio, clientfd);
-            while ((s = Rio_readlineb(&rio, contents, buffSize)) > 0)
+            while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
             {
                 if (contents[0] == EOF || sizeof contents == 0)
                 {

@@ -39,7 +39,7 @@ void echo(char *msg)
 }
 void get(char *filename)
 {
-    printf("We will try to transfer the file %s to the client %d", filename, Connfd);
+    printf("We will try to transfer the file %s to the client %d\n", filename, Connfd);
     fflush(stdout);
     FILE *f;
     char buffer[buffSize];
@@ -57,13 +57,17 @@ void get(char *filename)
     }
     /*int position = 0;
         fseek(f,position,SEEK_CUR);*/
+    long position;
+    
     while (Fgets(buffer, buffSize, f) > 0)
     {
-        if (rio_writen(Connfd, buffer, buffSize) != buffSize)
+        position = ftell(f);
+         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
-            printf("An error has occured during the transfer.");
+            printf(RED "An error has occured during the transfer.\n" RESET);
             break;
         };
+        rio_writen(Connfd,&position,__SIZEOF_LONG__);
     }
     buffer[0] = EOF;
     Rio_writen(Connfd, buffer, buffSize);
@@ -78,7 +82,7 @@ void resume()
     rio_t rio;
     Rio_readinitb(&rio, Connfd);
     char str[messageSize];
-    Rio_readlineb(&rio, str, messageSize);
+    Rio_readnb(&rio, str, messageSize);
 
     char *filename = strtok(str, ",");
     char *p = strtok(NULL, ",");
@@ -86,6 +90,7 @@ void resume()
     long position = strtol(p, eptr, 10);
     printf("%s %ld", filename, position);
     fflush(stdout);
+    Rio_readinitb(&rio, Connfd);
 
     /* --------------------------- Resuming the upload -------------------------- */
     FILE *f;
@@ -107,7 +112,7 @@ void resume()
     {
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
-            printf("An error has occured during the transfer.");
+            printf(RED "An error has occured during the transfer.\n" RESET);
             break;
         };
     }

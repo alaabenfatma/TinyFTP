@@ -13,7 +13,7 @@
 typedef int bool;
 #define true 1
 #define false 0
-#define buffSize 2 //must be >= 2 
+#define buffSize 256 //must be >= 2 
 #define messageSize 512 //must be >= 2 
 #define NPROC 20 //must be >= 2 
 #define FOLDER "downloads/"
@@ -27,3 +27,8 @@ void get(char *msg);
 void resume();
 char *strremove(char *str, const char *sub);
 char *nameOfCrashedFile();
+typedef struct {
+    long position;
+    size_t size;
+    char *buff;
+}data_from_file;
