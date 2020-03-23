@@ -56,7 +56,6 @@ int main(int argc, char **argv)
             char contents[buffSize];
             if ((Rio_readlineb(&rio, contents, buffSize)) > 0)
             {
-                puts(contents);
                 if (StartsWith(contents, "-"))
                 {
                     printf("And error has occured on the server side. Please check your command.");
