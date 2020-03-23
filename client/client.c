@@ -4,9 +4,10 @@
 #include "../libs/csapp.h"
 #include "../libs/utils.h"
 #include "../libs/cmds.h"
-
+char *filename;
 int main(int argc, char **argv)
 {
+    filename = "downloads/";
     int clientfd, port;
 
     char *host;
@@ -38,29 +39,40 @@ int main(int argc, char **argv)
     while (1)
     {
         printf("ftp>");
-        if (fgets(query, MAXLINE, stdin) == NULL)
+        if (fgets(query, messageSize, stdin) == NULL)
         {
             break;
         }
         Rio_writen(clientfd, query, strlen(query));
+        
         Rio_readinitb(&rio, clientfd);
         if (StartsWith(query, "echo"))
         {
-            //ignore
+            Rio_readlineb(&rio, query, messageSize);
         }
         else if (StartsWith(query, "get"))
         {
             ssize_t s;
             char contents[buffSize];
-            do 
+            filename = getFirstArgument(query);
+            FILE *f;
+            f= fopen(filename, "w");
+            struct timeval stop, start;
+            gettimeofday(&start, NULL);
+            Rio_readinitb(&rio,clientfd);
+            while ((s = Rio_readlineb(&rio, contents, buffSize)) > 0)
             {
-                s = Rio_readlineb(&rio, contents, buffSize);
-                if (contents[0] == '\0' ||contents[0] == EOF )
+                if (contents[0] == EOF)
                 {
                     break;
                 }
-                fputs(contents, stdout);
-            }while(s>0);
+                Fputs(contents, f);
+                fflush(f);
+            }
+            gettimeofday(&stop, NULL);
+            double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
+            off_t file_size = fileProperties(filename).st_size;
+            printf("%ld bytes received in %f seconds (%f Kbytes/s)\n",file_size,secs,(file_size / 1024 / secs));
         }
         fflush(stdout);
     }

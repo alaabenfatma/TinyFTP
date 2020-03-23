@@ -22,7 +22,7 @@ void handler(int signal)
  */
 int main(int argc, char **argv)
 {
-
+    Signal(SIGINT,handler);
     int listenfd, connfd, port;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;

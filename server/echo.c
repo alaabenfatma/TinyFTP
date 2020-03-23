@@ -9,7 +9,7 @@ void cmd(int connfd)
 {
     Connfd = connfd;
     size_t n;
-    char query[MAXLINE];
+    char query[messageSize];
     rio_t rio;
     Rio_readinitb(&rio, Connfd);
     while ((n = Rio_readlineb(&rio, query, MAXLINE)) != 0)
@@ -31,15 +31,16 @@ void echo(char *msg)
 {
     printf("Client sent : %s\n", msg);
     strcpy(msg, "Server has received your message.");
-    Rio_writen(Connfd, msg, buffSize);
+    Rio_writen(Connfd, msg, messageSize);
 }
 void get(char *filename)
 {
     printf("We will try to transfer the file %s to the client %d", filename, Connfd);
     int error = 0;
     FILE *f;
-    char buffer[buffSize];;
-    f = fopen(filename, "rb");
+    char buffer[buffSize];
+    ;
+    f = fopen(filename, "r");
     if (f == NULL)
     {
         error = 1;
@@ -47,17 +48,14 @@ void get(char *filename)
     }
     else
     {
-        
-        int read_size;
-            do 
-            {
-                read_size = fread(buffer, 1, buffSize, f);
-                Rio_writen(Connfd, buffer, buffSize);
-                printf("%s",buffer);
-            }while(read_size > 0);
-            strcpy(buffer,"\0");
-            Rio_writen(Connfd, buffer, buffSize);
-        fclose(f);
+
+        /*int position = 0;
+        fseek(f,position,SEEK_CUR);*/
+        while(Fread(buffer,1,buffSize,f)>0){
+            Rio_writen(Connfd,buffer,buffSize);
+        }
+        buffer[0]=EOF;
+        Rio_writen(Connfd,buffer,buffSize);
+
     }
-    printf("File has been sent.");
 }
