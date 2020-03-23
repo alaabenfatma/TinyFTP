@@ -36,29 +36,27 @@ void echo(char *msg)
 void get(char *filename)
 {
     printf("We will try to transfer the file %s to the client %d", filename, Connfd);
-    int error = 0;
     FILE *f;
     char buffer[buffSize];
-    ;
+    char *msg = malloc(sizeof(char));
+    strcpy(msg,"+");
     f = fopen(filename, "rb");
     if (f == NULL)
     {
-        error = 1;
-        printf("an error has occured %d ", error);
+        strcpy(msg,"-");
     }
-    else
-    {
-
-        /*int position = 0;
+    Rio_writen(Connfd, msg, 1);
+    if(StartsWith(msg,"-")){
+        return;
+    }
+    /*int position = 0;
         fseek(f,position,SEEK_CUR);*/
-        while(Fgets(buffer,buffSize,f)>0){
-            Rio_writen(Connfd,buffer,buffSize);
-            Fputs(buffer,stdout);
-        }
-        buffer[0]=EOF;
-        Rio_writen(Connfd,buffer,buffSize);
-                    Fputs(buffer,stdout);
-
-
+    while (Fgets(buffer, buffSize, f) > 0)
+    {
+        Rio_writen(Connfd, buffer, buffSize);
+        Fputs(buffer, stdout);
     }
+    buffer[0] = EOF;
+    Rio_writen(Connfd, buffer, buffSize);
+    Fputs(buffer, stdout);
 }

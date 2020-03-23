@@ -44,7 +44,7 @@ int main(int argc, char **argv)
             break;
         }
         Rio_writen(clientfd, query, strlen(query));
-        
+
         Rio_readinitb(&rio, clientfd);
         if (StartsWith(query, "echo"))
         {
@@ -52,15 +52,31 @@ int main(int argc, char **argv)
         }
         else if (StartsWith(query, "get"))
         {
+            Rio_readinitb(&rio, clientfd);
+            char contents[buffSize];
+            if ((Rio_readlineb(&rio, contents, buffSize)) > 0)
+            {
+                puts(contents);
+                if (StartsWith(contents, "-"))
+                {
+                    printf("And error has occured on the server side. Please check your command.");
+                    fflush(stdout);
+                    continue;
+                }
+                else
+                {
+                }
+            }
+
             strcpy(filename, "downloads/");
             ssize_t s;
-            char contents[buffSize];
-            strcat(filename,getFirstArgument(query));
+
+            strcat(filename, getFirstArgument(query));
             FILE *f;
-            f= fopen(filename, "w");
+            f = fopen(filename, "w");
             struct timeval stop, start;
             gettimeofday(&start, NULL);
-            Rio_readinitb(&rio,clientfd);
+            Rio_readinitb(&rio, clientfd);
             while ((s = Rio_readlineb(&rio, contents, buffSize)) > 0)
             {
                 if (contents[0] == EOF || sizeof contents == 0)
@@ -68,14 +84,13 @@ int main(int argc, char **argv)
                     break;
                 }
                 Fputs(contents, f);
-               
             }
-             fflush(f);
-             fclose(f);
+            fflush(f);
+            fclose(f);
             gettimeofday(&stop, NULL);
             double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
             off_t file_size = fileProperties(filename).st_size;
-            printf("%ld bytes received in %f seconds (%f Kbytes/s)\n",file_size,secs,(file_size / 1024 / secs));
+            printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
         }
         fflush(stdout);
     }
