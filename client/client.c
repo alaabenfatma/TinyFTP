@@ -4,10 +4,29 @@
 #include "../libs/csapp.h"
 #include "../libs/utils.h"
 #include "../libs/cmds.h"
-
+struct timeval stop, start;
+int downloading = 0;
+char filename[FILENAME_MAX];
+void handler(int s)
+{
+    printf("Program is closing.");
+    Sleep(1);
+    printf("%d\n",downloading);
+    if (downloading > 0)
+    {
+        ssize_t size = fileProperties(filename).st_size;
+        printf("You are still downloading the file : loaded bytes %ld\n", size);
+        FILE *tmp;
+        tmp = fopen("crash.log", "w");
+        fprintf(tmp,"%s %ld",filename,size);
+        fclose(tmp);
+    }
+    exit(1);
+}
 int main(int argc, char **argv)
 {
-    char filename[FILENAME_MAX];
+    Signal(SIGINT,handler);
+    
     int clientfd, port;
 
     char *host;
@@ -52,6 +71,8 @@ int main(int argc, char **argv)
         }
         else if (StartsWith(query, "get"))
         {
+            
+            
             Rio_readinitb(&rio, clientfd);
             char contents[buffSize];
             if ((Rio_readlineb(&rio, contents, buffSize)) > 0)
@@ -66,14 +87,13 @@ int main(int argc, char **argv)
                 {
                 }
             }
-
+            printf("File transfer has started...\n");
+            
             strcpy(filename, "downloads/");
             ssize_t s;
-
             strcat(filename, getFirstArgument(query));
             FILE *f;
             f = fopen(filename, "w");
-            struct timeval stop, start;
             gettimeofday(&start, NULL);
             Rio_readinitb(&rio, clientfd);
             while ((s = Rio_readlineb(&rio, contents, buffSize)) > 0)
@@ -83,10 +103,14 @@ int main(int argc, char **argv)
                     break;
                 }
                 Fputs(contents, f);
+                downloading =+sizeof(contents);
+                fflush(stdout);
+
             }
             fflush(f);
             fclose(f);
             gettimeofday(&stop, NULL);
+            downloading = 0;
             double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
             off_t file_size = fileProperties(filename).st_size;
             printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));

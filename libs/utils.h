@@ -1,5 +1,7 @@
 //Parametres et defines utiles..
-
+typedef int bool;
+#define true 1
+#define false 0
 #define buffSize 2 //must be >= 2 
 #define messageSize 512 //must be >= 2 
 #define NPROC 20 //must be >= 2 

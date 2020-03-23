@@ -53,10 +53,11 @@ void get(char *filename)
         fseek(f,position,SEEK_CUR);*/
     while (Fgets(buffer, buffSize, f) > 0)
     {
-        Rio_writen(Connfd, buffer, buffSize);
-        Fputs(buffer, stdout);
+        if(rio_writen(Connfd, buffer, buffSize)!=buffSize){
+            printf("An error has occured during the transfer.");
+            break;
+        };
     }
     buffer[0] = EOF;
     Rio_writen(Connfd, buffer, buffSize);
-    Fputs(buffer, stdout);
 }
