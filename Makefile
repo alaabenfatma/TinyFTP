@@ -13,10 +13,10 @@ LDFLAGS =
 # Note: -lnsl does not seem to work on Mac OS but will
 # probably be necessary on Solaris for linking network-related functions 
 #LIBS += -lsocket -lnsl -lrt
-LIBS += -lpthread
+LIBS += -lpthread -lcrypt
 
 INCLUDE = csapp.h
-OBJS = csapp.o  echo.o
+OBJS = csapp.o file_transfer.o echo.o
 INCLDIR = -I.
 
 PROGS = server client
