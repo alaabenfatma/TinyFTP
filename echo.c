@@ -75,7 +75,6 @@ int get(int connfd)
         else if (strcmp(query, "bye") == 0)
         {
             printf("Client deconnecté!\n");
-            return -2;
         }
         //Si on a eu un "ls"
         else if (strcmp(query, "ls") == 0)

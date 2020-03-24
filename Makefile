@@ -16,7 +16,7 @@ LDFLAGS =
 LIBS += -lpthread -lcrypt
 
 INCLUDE = csapp.h
-OBJS = csapp.o file_transfer.o echo.o
+OBJS = csapp.o file_transfer.o echo.o csv_reader.o
 INCLDIR = -I.
 
 PROGS = server client

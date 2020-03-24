@@ -23,6 +23,7 @@ int main(int argc, char **argv)
     listenfd = Open_listenfd(port);
     int success = 0; // utilisé pour voir si get à fonctionné correctement ou pas
     int tourniquet = 0;
+    int elu_temp = -1;
 
     //PIPE
     int pip1[2];
@@ -35,6 +36,8 @@ int main(int argc, char **argv)
 
     pid_t *child_processes; //All child processes
     child_processes = malloc(NPROC * sizeof(pid_t));
+
+    FILE *busy = initfield(); //Fichier qui indique un un serveur est occupé ou pas
 
     pid = Fork();
     if (pid > 0)
@@ -77,8 +80,34 @@ int main(int argc, char **argv)
 
             printf("server connected to %s (%s)\n", client_hostname,
                    client_ip_string);
-            //On indique au client le nouveau port auquel il doit se connecter (voir client)
-            Rio_writen(connfd, &elu, sizeof(elu));
+
+            //On cherche un esclave libre (hahaha)
+            //printf("getfield = %i\n", getfield(elu, busy));
+            //printf("elu = %i\n", elu);
+            //printf("elu_temp = %i\n", elu_temp);
+            fflush(busy);
+            //busy = fopen("busy","r+");
+            while ((getfield(elu, busy) != 0) && (elu != elu_temp))
+            {
+                elu = (tourniquet) % NPROC;
+                tourniquet++;
+                pid_elu = child_processes[elu];
+            }
+            if (elu != elu_temp)
+            { //Si on a trouve un esclave libre:
+                //On indique au client le nouveau port auquel il doit se connecter (voir client)
+                elu_temp = elu;
+                Rio_writen(connfd, &elu, sizeof(elu));
+            }
+            else
+            {
+                //Tous les esclaves sont occupés...
+                elu = 0;
+                elu_temp = -1;
+                int err = -1;
+                Rio_writen(connfd, &err, sizeof(err));
+            }
+
             Close(connfd);
         }
         else
@@ -94,6 +123,10 @@ int main(int argc, char **argv)
                 int listenfd2 = Open_listenfd(new_port);
                 connfd = Accept(listenfd2, (SA *)&clientaddr, &clientlen);
                 printf("Connected to child : %i !\n", elu_fils);
+
+                //Deviens occupé
+                setfield(elu_fils, '1', busy);
+
                 //Initialisation du repertoire courant:
                 dir = opendir("./");
 
@@ -113,8 +146,9 @@ int main(int argc, char **argv)
                 {
                     //On a eu un "bye" (voir coté client). On se deconnecte
                     success = 0;
-                    Close(listenfd2);
-                    Close(connfd);
+                    //Ce libère
+                    setfield(elu_fils, '0', busy);
+                    fflush(busy);
                 }
                 else
                 {
@@ -124,6 +158,9 @@ int main(int argc, char **argv)
                 Close(listenfd2);
                 Close(connfd);
                 closedir(dir);
+                //Ce libère
+                setfield(elu_fils, '0', busy);
+                fflush(busy);
             }
         }
     }

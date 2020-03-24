@@ -10,7 +10,7 @@
 
 #define buffSize 256 //must be >= 2 
 #define MAX_NAME_LEN 256
-#define NPROC 3
+#define NPROC 2
 #define MAXUSERS 50
 #define CREDLENGTH 20
 
@@ -24,6 +24,9 @@ int ls(DIR *dir);
 int remove_directory(const char *path);
 void get_cred(int connfd, char** str);
 int verify_login(char *username, char *password);
+int getfield(int el, FILE *p);
+void setfield(int el, char num, FILE *p);
+FILE *initfield();
 
 //utilisateurs
 char* users[MAXUSERS][2];
