@@ -1,9 +1,7 @@
 /*
  * echo - read and echo text lines until client closes connection
  */
-#include "../libs/csapp.h"
 #include "../libs/utils.h"
-#include "../libs/cmds.h"
 int Connfd;
 void cmd(int connfd)
 {
@@ -12,13 +10,12 @@ void cmd(int connfd)
     char query[messageSize];
     rio_t rio;
     Rio_readinitb(&rio, Connfd);
-    while ((n = Rio_readlineb(&rio, query, MAXLINE)) != 0)
+    while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
-        printf("server received %u bytes\n", (unsigned int)n);
+        printf("[CMD]"YELLOW" %s \n"RESET, query);
 
         if (StartsWith(query, "echo"))
         {
-
             echo(getFirstArgument(query));
         }
         else if (StartsWith(query, "get"))
@@ -28,6 +25,10 @@ void cmd(int connfd)
         else if (StartsWith(query, "resume"))
         {
             resume();
+        }
+        else if (StartsWith(query, "ls"))
+        {
+            ls();
         }
     }
 }
@@ -55,19 +56,21 @@ void get(char *filename)
     {
         return;
     }
-    /*int position = 0;
-        fseek(f,position,SEEK_CUR);*/
+
+    /* ------------------------ Send file size to client ------------------------ */
+    ssize_t size = fileProperties(filename).st_size;
+    Rio_writen(Connfd, &size, sizeof(size));
     long position;
-    
+
     while (Fgets(buffer, buffSize, f) > 0)
     {
         position = ftell(f);
-         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
+        if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
             printf(RED "An error has occured during the transfer.\n" RESET);
             break;
         };
-        rio_writen(Connfd,&position,__SIZEOF_LONG__);
+        rio_writen(Connfd, &position, __SIZEOF_LONG__);
     }
     buffer[0] = EOF;
     Rio_writen(Connfd, buffer, buffSize);
@@ -91,7 +94,6 @@ void resume()
     printf("%s %ld", filename, position);
     fflush(stdout);
     Rio_readinitb(&rio, Connfd);
-
     /* --------------------------- Resuming the upload -------------------------- */
     FILE *f;
     char buffer[buffSize];
@@ -107,7 +109,7 @@ void resume()
     {
         return;
     }
-    fseek(f,position,SEEK_SET);
+    fseek(f, position, SEEK_SET);
     while (Fgets(buffer, buffSize, f) > 0)
     {
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
@@ -120,4 +122,32 @@ void resume()
     Rio_writen(Connfd, buffer, buffSize);
     fclose(f);
     printf("File has been uploaded.");
+}
+void ls()
+{
+
+    /* -- can be either f or d -- */
+    char type = 'f';
+    struct dirent *dir;
+    if (current_directory)
+    {
+        while ((dir = readdir(current_directory)) != NULL)
+        {
+            Rio_writen(Connfd, dir->d_name, messageSize);
+
+            /* ----- Finding the type of the file helps us with printing the colors ----- */
+            if (is_file(dir->d_name))
+            {
+                type = 'f';
+                Rio_writen(Connfd, &type, sizeof(char));
+            }
+            else
+            {
+                type = 'd';
+                Rio_writen(Connfd, &type, sizeof(char));
+            }
+        }
+        Rio_writen(Connfd,&EOF_BUFF, messageSize);
+        closedir(current_directory);
+    }
 }
