@@ -38,9 +38,17 @@ void s_cmd(int connfd)
         {
             s_mkdir(getFirstArgument(query));
         }
+        else if (StartsWith(query, "rm"))
+        {
+            s_rm(getFirstArgument(query));
+        }
         else if (StartsWith(query, "rm -r"))
         {
             s_rmdir(getFirstArgument(query));
+        }
+        else if (StartsWith(query, "put"))
+        {
+            s_put(getFirstArgument(query));
         }
     }
 }
@@ -189,11 +197,58 @@ void s_mkdir(char *fname)
     Rio_writen(Connfd, &error, sizeof(bool));
     fflush(stdout);
 }
-
 void s_rmdir(char *fname)
 {
 
     /* ------------------ error = true if something goes wrong. ----------------- */
     bool error = !(s_removeDirectory(fname));
     Rio_writen(Connfd, &error, sizeof(bool));
+}
+void s_rm(char *fname){
+    bool error = (remove(fname)!=0);
+    Rio_writen(Connfd, &error, sizeof(bool));
+}
+void s_put(char *filename)
+{
+    rio_t rio;
+    Rio_readinitb(&rio, Connfd);
+    char contents[buffSize];
+    if ((Rio_readnb(&rio, contents, 1)) > 0)
+    {
+        if (StartsWith(contents, "-"))
+        {
+            printf(RED "An error has occured on the server side. Please check your command.\n" RESET);
+            fflush(stdout);
+            return;
+        }
+        else
+        {
+        }
+    }
+    ssize_t original_size, s;
+    strcpy(filename,fileBaseName(filename));
+    Rio_readnb(&rio, &original_size, sizeof(original_size));
+    FILE *f;
+
+    f = fopen(filename, "w");
+    gettimeofday(&start, NULL);
+    Rio_readinitb(&rio, Connfd);
+    while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
+    {
+        if (contents[0] == EOF || sizeof contents == 0)
+        {
+            break;
+        }
+        Rio_readnb(&rio, &downloading, __SIZEOF_LONG__);
+        Fputs(contents, f);
+        printProgress("Downloading : ", downloading, original_size);
+    }
+    fflush(f);
+    fclose(f);
+    gettimeofday(&stop, NULL);
+    downloading = 0;
+    double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
+    off_t file_size = fileProperties(filename).st_size;
+    printf(GREEN "File has been downloaded successfully.\n" RESET);
+    printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
 }

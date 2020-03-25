@@ -17,6 +17,8 @@ typedef int bool;
 #define false 0
 
 /* ------------------------------ PROGRESS BAR ------------------------------ */
+struct timeval stop, start;
+bool downloading;
 void printProgress(char *msg,ssize_t downloaded, ssize_t size);
 double percentage(double size, double downloaded);
 
@@ -38,6 +40,7 @@ char *nameOfCrashedFile();
 long sizeOfCrashedFile();
 struct stat fileProperties(char *filename);
 int is_file(char *path);
+char *fileBaseName(char const *path);
 /* -------------------------- Server-side funtions -------------------------- */
 
 void s_cmd(int connfd);
@@ -62,5 +65,5 @@ void c_cd();
 void c_mkdir();
 void c_rm();
 void c_rmdir();
-void c_put();
+void c_put(char *fname);
 

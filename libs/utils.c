@@ -45,8 +45,10 @@ long sizeOfCrashedFile()
 
 void printProgress(char *msg, ssize_t downloaded, ssize_t size)
 {
-    printf("%s : %ld/%ld (%d%%)", msg, downloaded, size, (int)percentage((double)size, (double)downloaded));
+    int _percentage = (int)percentage((double)size, (double)downloaded);
+    printf("%s : %ld/%ld (%d%%)", msg, downloaded, size, _percentage);
     printf("\r");
+     printf(RESET);
     fflush(stdout);
 }
 
@@ -143,4 +145,12 @@ bool s_removeDirectory(char *fname)
         return false;
     closedir(dir);
     return true;
+}
+char *fileBaseName(char const *path)
+{
+    char *s = strrchr(path, '/');
+    if (!s)
+        return strdup(path);
+    else
+        return strdup(s + 1);
 }

@@ -2,9 +2,7 @@
  * echoclient.c - An echo client
  */
 #include "../libs/utils.h"
-struct timeval stop, start;
 int clientfd, port;
-bool downloading = false;
 char filename[FILENAME_MAX];
 char *host;
 rio_t rio;
@@ -50,7 +48,7 @@ void c_get(char *query)
 
     strcpy(filename, "downloads/");
 
-    strcat(filename, getFirstArgument(query));
+    strcat(filename, fileBaseName(getFirstArgument(query)));
     FILE *f;
     f = fopen(filename, "w");
     gettimeofday(&start, NULL);
@@ -202,6 +200,16 @@ void c_mkdir()
         printf(RED "Directory could not be created." RESET);
     }
 }
+void c_rm(){
+    /* -------- We have to ONLY check if the rm got executed well or not -------- */
+    bool error = false;
+    Rio_readinitb(&rio, clientfd);
+    Rio_readnb(&rio, &error, sizeof(error));
+    if (error == true)
+    {
+        printf(RED "File could not be removed." RESET);
+    }
+}
 void c_rmdir(){
     /* -------- We have to ONLY check if the rm -r got executed well or not -------- */
     bool error = false;
@@ -212,6 +220,43 @@ void c_rmdir(){
         printf(RED "Directory could not be removed." RESET);
     }
 
+}
+void c_put(char *fname){
+    FILE *f;
+    char buffer[buffSize];
+    char *msg = malloc(sizeof(char));
+    strcpy(msg, "+");
+    f = fopen(fname, "rb");
+    if (f == NULL)
+    {
+        strcpy(msg, "-");
+    }
+    Rio_writen(clientfd, msg, 1);
+    if (StartsWith(msg, "-"))
+    {
+        return;
+    }
+
+    /* ------------------------ Send file size to client ------------------------ */
+    ssize_t size = fileProperties(fname).st_size;
+    Rio_writen(clientfd, &size, sizeof(size));
+    long position;
+
+    while (Fgets(buffer, buffSize, f) > 0)
+    {
+        position = ftell(f);
+        if (rio_writen(clientfd, buffer, buffSize) != buffSize)
+        {
+            printf(RED "An error has occured during the transfer.\n" RESET);
+            break;
+        };
+        rio_writen(clientfd, &position, __SIZEOF_LONG__);
+        printProgress("Uploading : ", position, size);
+    }
+    buffer[0] = EOF;
+    Rio_writen(clientfd, buffer, buffSize);
+    printf(GREEN"\nFile has been uploaded successfully.\n"RESET);
+    fclose(f);
 }
 int main(int argc, char **argv)
 {
@@ -277,9 +322,17 @@ int main(int argc, char **argv)
         {
            clearClientScreen();
         }
+        else if (StartsWith(query, "rm"))
+        {
+           c_rm();
+        }
         else if (StartsWith(query, "rm -r"))
         {
             c_rmdir();
+        }
+        else if (StartsWith(query, "put"))
+        {
+            c_put(getFirstArgument(query));
         }
         else
         {
