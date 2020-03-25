@@ -9,6 +9,10 @@ DIR *current_directory;
 #define NPROC 5         //must be >= 2
 pid_t child_processes[NPROC];
 #define FOLDER "downloads/"
+//boolean type
+typedef int bool;
+#define true 1
+#define false 0
 
 /* ------------------------------ PROGRESS BAR ------------------------------ */
 void printProgress(char *msg,ssize_t downloaded, ssize_t size);
@@ -23,9 +27,6 @@ double percentage(double size, double downloaded);
 #define CYAN "\x1B[36m"
 #define WHITE "\x1B[37m"
 #define RESET "\x1B[0m"
-typedef int bool;
-#define true 1
-#define false 0
 
 /* ---------------------------------- utils --------------------------------- */
 char *getFirstArgument(char cmd[]);
@@ -43,12 +44,20 @@ void s_resume();
 void s_ls();
 void s_pwd();
 void s_cd(char *path);
+void s_mkdir(char *fname);
+void s_rm(char *fname);
+void s_rmdir(char *fname);
+void s_put(char *fname);
 
 /* ----------------------- Client-side funtions ----------------------- */
+void clearClientScreen();
 void c_get(char *msg);
 void c_resume();
 void c_ls();
 void c_pwd();
 void c_cd();
-
+void c_mkdir();
+void c_rm();
+void c_rmdir();
+void c_put();
 

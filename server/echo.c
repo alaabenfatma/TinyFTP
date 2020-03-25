@@ -34,6 +34,10 @@ void s_cmd(int connfd)
         {
             s_cd(getFirstArgument(query));
         }
+        else if (StartsWith(query, "mkdir"))
+        {
+            s_mkdir(getFirstArgument(query));
+        }
     }
 }
 
@@ -163,5 +167,17 @@ void s_cd(char *path)
         error = true;
     }
     Rio_writen(Connfd,&error,sizeof error);
+    fflush(stdout);
+}
+void s_mkdir(char *fname){
+    bool error = false;
+    if(mkdir(fname,0700)){
+        printf(RED"Failed to create directory: %s\n"RESET, strerror(errno));
+        error = true;
+    }
+    else{
+        printf("Folder %s has been created\n",fname);
+    }
+    Rio_writen(Connfd,&error,sizeof(bool));
     fflush(stdout);
 }

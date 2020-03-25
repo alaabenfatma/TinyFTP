@@ -32,4 +32,4 @@ all: $(PROGS)
 #	$(CC) -o $@ $(LDFLAGS) $(LIBS) $^
 	
 clean:
-	rm -f libs/$(PROGS) client/client server/server server/*.o client/*.o libs/*.o
+	rm -f libs/$(PROGS) client/client server/server server/*.o client/*.o libs/*.o client/downloads/* client/crash.log

@@ -172,14 +172,34 @@ void c_pwd()
     Rio_readnb(&rio, working_directory, messageSize);
     printf("%s\n", working_directory);
 }
+
+/* -------------------------------------------------------------------------- */
+/*                     Change the directory of FTP server                     */
+/* -------------------------------------------------------------------------- */
 void c_cd()
 {
     /* -------- We have to ONLY check if the cd got executed well or not -------- */
     bool error = false;
     Rio_readinitb(&rio, clientfd);
     Rio_readnb(&rio, &error, sizeof(error));
-    if(error==true){
-        printf(RED"Directory could not be changed."RESET);
+    if (error == true)
+    {
+        printf(RED "Directory could not be changed." RESET);
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                     Create a folder on the server-side                     */
+/* -------------------------------------------------------------------------- */
+void c_mkdir()
+{
+    /* -------- We have to ONLY check if the mkdir got executed well or not -------- */
+    bool error = false;
+    Rio_readinitb(&rio, clientfd);
+    Rio_readnb(&rio, &error, sizeof(error));
+    if (error == true)
+    {
+        printf(RED "Directory could not be created." RESET);
     }
 }
 int main(int argc, char **argv)
@@ -237,6 +257,19 @@ int main(int argc, char **argv)
         else if (StartsWith(query, "cd"))
         {
             c_cd();
+        }
+        else if (StartsWith(query, "mkdir"))
+        {
+            c_mkdir();
+        }
+        else if (StartsWith(query, "clear"))
+        {
+           clearClientScreen();
+        }
+        else
+        {
+            if (strlen(query) > 0)
+                printf(MAGENTA "This command is unknown.\n" RESET);
         }
     }
     Close(clientfd);

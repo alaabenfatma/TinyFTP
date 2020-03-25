@@ -81,8 +81,16 @@ char *getFirstArgument(char cmd[])
 }
 
 /* ------------------------ return false if directory ----------------------- */
-
 int is_file(char *path)
 {
     return S_ISREG(fileProperties(path).st_mode);
+}
+
+/* -------------------------------------------------------------------------- */
+/*        We can use this hack to clear the screen and return ftp> only       */
+/* -------------------------------------------------------------------------- */
+void clearClientScreen()
+{
+  const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
+  write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
 }
