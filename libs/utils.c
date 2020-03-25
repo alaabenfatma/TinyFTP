@@ -39,15 +39,15 @@ long sizeOfCrashedFile()
     fname = strtok(fname, ",");
     fname = strtok(NULL, ",");
     fclose(f);
-    char **err=malloc(sizeof(10));
-    return (long)strtol(fname,err,10);
+    char **err = malloc(sizeof(10));
+    return (long)strtol(fname, err, 10);
 }
 
-void printProgress(char *msg,ssize_t downloaded,ssize_t size)
+void printProgress(char *msg, ssize_t downloaded, ssize_t size)
 {
-        printf("%s : %ld/%ld (%d%%)",msg, downloaded,size,(int)percentage((double)size,(double)downloaded));
-        printf("\r");
-        fflush(stdout);
+    printf("%s : %ld/%ld (%d%%)", msg, downloaded, size, (int)percentage((double)size, (double)downloaded));
+    printf("\r");
+    fflush(stdout);
 }
 
 double percentage(double size, double downloaded)
@@ -64,19 +64,30 @@ int StartsWith(const char *a, const char *b)
 char *getFirstArgument(char cmd[])
 {
     char *argument = malloc(strlen(cmd));
-    int i,j=0;
+    int i, j = 0;
+    if (StartsWith(cmd, "rm -r"))
+    {
+        for (i = 6; i < strlen(cmd) - 1; i++)
+        {
+            argument[j] = cmd[i];
+            j++;
+        }
+        return argument;
+    }
+
     for (i = 0; i < strlen(cmd); i++)
     {
-        if(cmd[i]==' '){
+        if (cmd[i] == ' ')
+        {
             break;
         }
     }
-    for (i = i+1; i < strlen(cmd)-1; i++)
+    for (i = i + 1; i < strlen(cmd) - 1; i++)
     {
         argument[j] = cmd[i];
         j++;
     }
-    
+
     return argument;
 }
 
@@ -91,6 +102,45 @@ int is_file(char *path)
 /* -------------------------------------------------------------------------- */
 void clearClientScreen()
 {
-  const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
-  write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
+    const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
+    write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
+}
+
+/* -------------------------------------------------------------------------- */
+/*    Returns true if directory gets completely deleted. false, otherwose.    */
+/* ------------------------ **fname** = folder name. ------------------------ */
+/* -------------------------------------------------------------------------- */
+bool s_removeDirectory(char *fname)
+{
+    if (fname[strlen(fname) - 2] != '/')
+    {
+        strcat(fname, "/");
+    }
+    DIR *dir;
+    struct dirent *current;
+    char file_to_potenially_delete[1024];
+    if (!(dir = opendir(fname)))
+        return false;
+
+    while ((current = readdir(dir)) != NULL)
+    {
+        if (!is_file(current->d_name))
+        {
+            if (strcmp(current->d_name, ".") == 0 || strcmp(current->d_name, "..") == 0)
+                continue;
+
+            snprintf(file_to_potenially_delete, sizeof(file_to_potenially_delete), "%s/%s", fname, current->d_name);
+            s_removeDirectory(file_to_potenially_delete);
+            remove(file_to_potenially_delete);
+        }
+        else
+        {
+            remove(current->d_name);
+        }
+    }
+    /* ------------------------- We delete the root dir ------------------------- */
+    if (remove(fname) != 0)
+        return false;
+    closedir(dir);
+    return true;
 }

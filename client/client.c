@@ -202,6 +202,17 @@ void c_mkdir()
         printf(RED "Directory could not be created." RESET);
     }
 }
+void c_rmdir(){
+    /* -------- We have to ONLY check if the rm -r got executed well or not -------- */
+    bool error = false;
+    Rio_readinitb(&rio, clientfd);
+    Rio_readnb(&rio, &error, sizeof(error));
+    if (error == true)
+    {
+        printf(RED "Directory could not be removed." RESET);
+    }
+
+}
 int main(int argc, char **argv)
 {
     Signal(SIGINT, handler);
@@ -265,6 +276,10 @@ int main(int argc, char **argv)
         else if (StartsWith(query, "clear"))
         {
            clearClientScreen();
+        }
+        else if (StartsWith(query, "rm -r"))
+        {
+            c_rmdir();
         }
         else
         {

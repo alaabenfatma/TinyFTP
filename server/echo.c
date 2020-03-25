@@ -38,6 +38,10 @@ void s_cmd(int connfd)
         {
             s_mkdir(getFirstArgument(query));
         }
+        else if (StartsWith(query, "rm -r"))
+        {
+            s_rmdir(getFirstArgument(query));
+        }
     }
 }
 
@@ -160,24 +164,36 @@ void s_pwd()
     Rio_writen(Connfd, path, messageSize);
 }
 void s_cd(char *path)
-{   bool error = false;
+{
+    bool error = false;
     if (chdir(path) == -1)
     {
-        printf(RED"Failed to change directory: %s\n"RESET, strerror(errno));
+        printf(RED "Failed to change directory: %s\n" RESET, strerror(errno));
         error = true;
     }
-    Rio_writen(Connfd,&error,sizeof error);
+    Rio_writen(Connfd, &error, sizeof error);
     fflush(stdout);
 }
-void s_mkdir(char *fname){
+void s_mkdir(char *fname)
+{
     bool error = false;
-    if(mkdir(fname,0700)){
-        printf(RED"Failed to create directory: %s\n"RESET, strerror(errno));
+    if (mkdir(fname, 0700))
+    {
+        printf(RED "Failed to create directory: %s\n" RESET, strerror(errno));
         error = true;
     }
-    else{
-        printf("Folder %s has been created\n",fname);
+    else
+    {
+        printf("Folder %s has been created\n", fname);
     }
-    Rio_writen(Connfd,&error,sizeof(bool));
+    Rio_writen(Connfd, &error, sizeof(bool));
     fflush(stdout);
+}
+
+void s_rmdir(char *fname)
+{
+
+    /* ------------------ error = true if something goes wrong. ----------------- */
+    bool error = !(s_removeDirectory(fname));
+    Rio_writen(Connfd, &error, sizeof(bool));
 }

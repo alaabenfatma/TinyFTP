@@ -1,4 +1,6 @@
+#include <ftw.h>
 #include <dirent.h>
+#include <sys/types.h>
 #include "csapp.h"
 /* ----------------------- The super global directory ----------------------- */
 char global_path[FILENAME_MAX];
@@ -48,6 +50,7 @@ void s_mkdir(char *fname);
 void s_rm(char *fname);
 void s_rmdir(char *fname);
 void s_put(char *fname);
+bool s_removeDirectory(char *fname);
 
 /* ----------------------- Client-side funtions ----------------------- */
 void clearClientScreen();
