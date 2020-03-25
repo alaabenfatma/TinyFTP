@@ -48,7 +48,6 @@ int main(int argc, char **argv)
     //Ici, on le serveur va dire au client sur quel fils il faut se connecter
     int elu;
     Rio_readnb(&rio, &elu, sizeof(elu));
-    printf("elu = %i\n",elu);
     if(elu == -1){
         //Aucun serveur n'est libre...
         printf("Aucun serveur n'est libre, il faut qu'un autre client ce deconnecte.\n");
