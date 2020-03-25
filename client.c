@@ -121,6 +121,9 @@ int main(int argc, char **argv)
         {
             exit(0);
         }
+        if (strcmp(is_bye, "cd ") == 0)
+        {
+        }
         else if (strcmp(is_ls, "ls") == 0)
         {
             ssize_t seen;
