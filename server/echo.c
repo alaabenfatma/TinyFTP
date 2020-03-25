@@ -3,7 +3,7 @@
  */
 #include "../libs/utils.h"
 int Connfd;
-void cmd(int connfd)
+void s_cmd(int connfd)
 {
     Connfd = connfd;
     size_t n;
@@ -12,36 +12,29 @@ void cmd(int connfd)
     Rio_readinitb(&rio, Connfd);
     while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
-        printf("[CMD]"YELLOW" %s \n"RESET, query);
+        printf("[CMD]" YELLOW " %s \n" RESET, query);
 
-        if (StartsWith(query, "echo"))
+        if (StartsWith(query, "get"))
         {
-            echo(getFirstArgument(query));
-        }
-        else if (StartsWith(query, "get"))
-        {
-            get(getFirstArgument(query));
+            s_get(getFirstArgument(query));
         }
         else if (StartsWith(query, "resume"))
         {
-            resume();
+            s_resume();
         }
         else if (StartsWith(query, "ls"))
         {
-            ls();
+            s_ls();
+        }
+        else if(StartsWith(query,"pwd")){
+            s_pwd();
         }
     }
 }
-void echo(char *msg)
+
+void s_get(char *filename)
 {
-    printf("Client sent : %s\n", msg);
-    strcpy(msg, "Server has received your message.");
-    Rio_writen(Connfd, msg, messageSize);
-}
-void get(char *filename)
-{
-    printf("We will try to transfer the file %s to the client %d\n", filename, Connfd);
-    fflush(stdout);
+    
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
@@ -71,12 +64,13 @@ void get(char *filename)
             break;
         };
         rio_writen(Connfd, &position, __SIZEOF_LONG__);
+        printProgress("Uploading : ",position,size);
     }
     buffer[0] = EOF;
     Rio_writen(Connfd, buffer, buffSize);
     fclose(f);
 }
-void resume()
+void s_resume()
 {
 
     /* ---------------------------- Init resume data ---------------------------- */
@@ -123,12 +117,13 @@ void resume()
     fclose(f);
     printf("File has been uploaded.");
 }
-void ls()
+void s_ls()
 {
 
     /* -- can be either f or d -- */
     char type = 'f';
     struct dirent *dir;
+    current_directory = opendir(global_path);
     if (current_directory)
     {
         while ((dir = readdir(current_directory)) != NULL)
@@ -137,17 +132,24 @@ void ls()
 
             /* ----- Finding the type of the file helps us with printing the colors ----- */
             if (is_file(dir->d_name))
-            {
                 type = 'f';
-                Rio_writen(Connfd, &type, sizeof(char));
-            }
             else
-            {
                 type = 'd';
-                Rio_writen(Connfd, &type, sizeof(char));
-            }
+            Rio_writen(Connfd, &type, sizeof(char));
+
         }
-        Rio_writen(Connfd,&EOF_BUFF, messageSize);
-        closedir(current_directory);
+       
+        type = EOF;
+        Rio_writen(Connfd, &type, messageSize);
+        Rio_writen(Connfd, &type, sizeof(char));
+         closedir(current_directory);
     }
+}
+void s_pwd(){
+    char *path = malloc(messageSize);
+    getcwd(path, messageSize);
+    Rio_writen(Connfd,path,messageSize);
+}
+void s_cd(char *path){
+    
 }

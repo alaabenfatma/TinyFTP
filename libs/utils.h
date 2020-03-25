@@ -1,6 +1,7 @@
 #include <dirent.h>
 #include "csapp.h"
 /* ----------------------- The super global directory ----------------------- */
+char global_path[FILENAME_MAX];
 DIR *current_directory;
 /* -------------- Universal stuff I wrote while eating cookies -------------- */
 #define buffSize 256    //must be >= 2
@@ -8,10 +9,9 @@ DIR *current_directory;
 #define NPROC 5         //must be >= 2
 pid_t child_processes[NPROC];
 #define FOLDER "downloads/"
-char EOF_BUFF;
-/* ------------------------------ PROGRESS BAR ------------------------------ */
 
-void printProgress(ssize_t downloaded, ssize_t size);
+/* ------------------------------ PROGRESS BAR ------------------------------ */
+void printProgress(char *msg,ssize_t downloaded, ssize_t size);
 double percentage(double size, double downloaded);
 
 /* --------------------------------- COLORS --------------------------------- */
@@ -27,25 +27,28 @@ typedef int bool;
 #define true 1
 #define false 0
 
-
-
 /* ---------------------------------- utils --------------------------------- */
-int is_file(char *path);
-/* -------------------------- Server-side funtions -------------------------- */
-
-struct stat fileProperties(char *filename);
-void cmd(int connfd);
-void echo(char *msg);
-void get(char *msg);
-void resume();
+char *getFirstArgument(char cmd[]);
+int StartsWith(const char *a, const char *b);
 char *strremove(char *str, const char *sub);
 char *nameOfCrashedFile();
 long sizeOfCrashedFile();
+struct stat fileProperties(char *filename);
+int is_file(char *path);
+/* -------------------------- Server-side funtions -------------------------- */
 
-/* --------------------------- Shell-like commands -------------------------- */
-void ls();
+void s_cmd(int connfd);
+void s_get(char *msg);
+void s_resume();
+void s_ls();
+void s_pwd();
+void s_cd(char *path);
+
+/* ----------------------- Client-side funtions ----------------------- */
+void c_get(char *msg);
+void c_resume();
+void c_ls();
+void c_pwd();
+void c_cd();
 
 
-/* ---------------------------------- CMDS ---------------------------------- */
-char *getFirstArgument(char cmd[]);
-int StartsWith(const char *a, const char *b);

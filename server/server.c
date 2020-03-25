@@ -22,11 +22,20 @@ void handler(int signal)
 int main(int argc, char **argv)
 {
 
-    /* -------------------------- Setting everuthing up ------------------------- */
+    /* -------------------------------------------------------------------------- */
+    /*                            Setting everything up                           */
+    /* -------------------------------------------------------------------------- */
 
     printf("Starting the server...");
+
+    /* --------------------------- Setting up signals --------------------------- */
+
     Signal(SIGINT, handler);
-    EOF_BUFF = EOF;
+
+    /* ------------------------- Setting up environment ------------------------- */
+    strcpy(global_path, ".");
+
+    /* Declarations */
     int listenfd, connfd, port;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
@@ -38,9 +47,8 @@ int main(int argc, char **argv)
     int fd[2];
     pipe(fd);
     port = 2121;
-
+    /* Connecting... */
     clientlen = (socklen_t)sizeof(clientaddr);
-    current_directory = opendir(".");
     listenfd = Open_listenfd(port);
     printf(GREEN "OK" RESET "\n");
     /* ------------------------------- init pool ------------------------------ */
@@ -107,7 +115,7 @@ int main(int argc, char **argv)
                 connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
                 printf("Connected to child : %i !\n", elu_fils);
             }
-            cmd(connfd);
+            s_cmd(connfd);
             Close(connfd);
             Close(listenfd);
         }

@@ -43,9 +43,9 @@ long sizeOfCrashedFile()
     return (long)strtol(fname,err,10);
 }
 
-void printProgress(ssize_t downloaded,ssize_t size)
+void printProgress(char *msg,ssize_t downloaded,ssize_t size)
 {
-        printf("Downloading : %ld/%ld (%d%%)", downloaded,size,(int)percentage((double)size,(double)downloaded));
+        printf("%s : %ld/%ld (%d%%)",msg, downloaded,size,(int)percentage((double)size,(double)downloaded));
         printf("\r");
         fflush(stdout);
 }
