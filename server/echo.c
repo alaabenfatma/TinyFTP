@@ -26,15 +26,20 @@ void s_cmd(int connfd)
         {
             s_ls();
         }
-        else if(StartsWith(query,"pwd")){
+        else if (StartsWith(query, "pwd"))
+        {
             s_pwd();
+        }
+        else if (StartsWith(query, "cd"))
+        {
+            s_cd(getFirstArgument(query));
         }
     }
 }
 
 void s_get(char *filename)
 {
-    
+
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
@@ -64,7 +69,7 @@ void s_get(char *filename)
             break;
         };
         rio_writen(Connfd, &position, __SIZEOF_LONG__);
-        printProgress("Uploading : ",position,size);
+        printProgress("Uploading : ", position, size);
     }
     buffer[0] = EOF;
     Rio_writen(Connfd, buffer, buffSize);
@@ -136,20 +141,27 @@ void s_ls()
             else
                 type = 'd';
             Rio_writen(Connfd, &type, sizeof(char));
-
         }
-       
+
         type = EOF;
         Rio_writen(Connfd, &type, messageSize);
         Rio_writen(Connfd, &type, sizeof(char));
-         closedir(current_directory);
+        closedir(current_directory);
     }
 }
-void s_pwd(){
+void s_pwd()
+{
     char *path = malloc(messageSize);
     getcwd(path, messageSize);
-    Rio_writen(Connfd,path,messageSize);
+    Rio_writen(Connfd, path, messageSize);
 }
-void s_cd(char *path){
-    
+void s_cd(char *path)
+{   bool error = false;
+    if (chdir(path) == -1)
+    {
+        printf(RED"Failed to change directory: %s\n"RESET, strerror(errno));
+        error = true;
+    }
+    Rio_writen(Connfd,&error,sizeof error);
+    fflush(stdout);
 }

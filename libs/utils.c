@@ -64,23 +64,17 @@ int StartsWith(const char *a, const char *b)
 char *getFirstArgument(char cmd[])
 {
     char *argument = malloc(strlen(cmd));
-    if (StartsWith(cmd, "get"))
+    int i,j=0;
+    for (i = 0; i < strlen(cmd); i++)
     {
-        int j = 0;
-        for (int i = 4; i < strlen(cmd)-1; i++)
-        {
-            argument[j] = cmd[i];
-            j++;
+        if(cmd[i]==' '){
+            break;
         }
     }
-    else if (StartsWith(cmd, "echo"))
+    for (i = i+1; i < strlen(cmd)-1; i++)
     {
-        int j = 0;
-        for (int i = 5; i < strlen(cmd)-1; i++)
-        {
-            argument[j] = cmd[i];
-            j++;
-        }
+        argument[j] = cmd[i];
+        j++;
     }
     
     return argument;

@@ -165,12 +165,22 @@ void c_ls()
 /* -------------------------------------------------------------------------- */
 /*             Return the current working directory of the server.            */
 /* -------------------------------------------------------------------------- */
-void c_pwd(){
+void c_pwd()
+{
     char *working_directory = malloc(messageSize);
-    Rio_readinitb(&rio,clientfd);
-    Rio_readnb(&rio,working_directory,messageSize);
-    printf("%s\n",working_directory);
-
+    Rio_readinitb(&rio, clientfd);
+    Rio_readnb(&rio, working_directory, messageSize);
+    printf("%s\n", working_directory);
+}
+void c_cd()
+{
+    /* -------- We have to ONLY check if the cd got executed well or not -------- */
+    bool error = false;
+    Rio_readinitb(&rio, clientfd);
+    Rio_readnb(&rio, &error, sizeof(error));
+    if(error==true){
+        printf(RED"Directory could not be changed."RESET);
+    }
 }
 int main(int argc, char **argv)
 {
@@ -220,8 +230,13 @@ int main(int argc, char **argv)
         {
             c_ls();
         }
-        else if(StartsWith(query,"pwd")){
+        else if (StartsWith(query, "pwd"))
+        {
             c_pwd();
+        }
+        else if (StartsWith(query, "cd"))
+        {
+            c_cd();
         }
     }
     Close(clientfd);
