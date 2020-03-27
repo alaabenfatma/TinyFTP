@@ -48,7 +48,7 @@ void printProgress(char *msg, ssize_t downloaded, ssize_t size)
     int _percentage = (int)percentage((double)size, (double)downloaded);
     printf("%s : %ld/%ld (%d%%)", msg, downloaded, size, _percentage);
     printf("\r");
-     printf(RESET);
+    printf(RESET);
     fflush(stdout);
 }
 
@@ -120,7 +120,7 @@ bool s_removeDirectory(char *fname)
     }
     DIR *dir;
     struct dirent *current;
-    char file_to_potenially_delete[1024];
+    char file_to_delete[1024];
     if (!(dir = opendir(fname)))
         return false;
 
@@ -131,9 +131,9 @@ bool s_removeDirectory(char *fname)
             if (strcmp(current->d_name, ".") == 0 || strcmp(current->d_name, "..") == 0)
                 continue;
 
-            snprintf(file_to_potenially_delete, sizeof(file_to_potenially_delete), "%s/%s", fname, current->d_name);
-            s_removeDirectory(file_to_potenially_delete);
-            remove(file_to_potenially_delete);
+            snprintf(file_to_delete, sizeof(file_to_delete), "%s/%s", fname, current->d_name);
+            s_removeDirectory(file_to_delete);
+            remove(file_to_delete);
         }
         else
         {
@@ -146,6 +146,10 @@ bool s_removeDirectory(char *fname)
     closedir(dir);
     return true;
 }
+
+/* -------------------------------------------------------------------------- */
+/*                           Get filename from path                           */
+/* -------------------------------------------------------------------------- */
 char *fileBaseName(char const *path)
 {
     char *s = strrchr(path, '/');
@@ -153,4 +157,46 @@ char *fileBaseName(char const *path)
         return strdup(path);
     else
         return strdup(s + 1);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Securely read password                           */
+/* -------------------------------------------------------------------------- */
+char *readpassword()
+{
+    return crypt(getpass("Password: "), "ftp");
+    ;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                               Welcome screen                               */
+/* -------------------------------------------------------------------------- */
+void welcome()
+{
+    printf("Please connect (" CYAN "press C" RESET ") or register (" CYAN "press R" RESET ")\n");
+    char input = 'X';
+    while (input != 'C' && input != 'R')
+    {
+        input = getchar();
+    }
+    if (input == 'C')
+    {
+    }
+    else if (input == 'R')
+    {
+    }
+}
+
+/* -------------------------------------------------------------------------- */
+/*   Create an account on the server-side using the data sent by the client   */
+/* -------------------------------------------------------------------------- */
+bool createAccount(){
+
+}
+
+/* -------------------------------------------------------------------------- */
+/*                Connect to an existing account on the Server                */
+/* -------------------------------------------------------------------------- */
+bool loginAccount(){
+
 }

@@ -1,11 +1,20 @@
 #include <ftw.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <crypt.h>
 #include "csapp.h"
-/* ----------------------- The super global directory ----------------------- */
+
+/* -------------------------------------------------------------------------- */
+/*                         The super global directory                         */
+/* -------------------------------------------------------------------------- */
+
 char global_path[FILENAME_MAX];
 DIR *current_directory;
-/* -------------- Universal stuff I wrote while eating cookies -------------- */
+
+/* -------------------------------------------------------------------------- */
+/*                             Global definitions                             */
+/* -------------------------------------------------------------------------- */
+
 #define buffSize 256    //must be >= 2
 #define messageSize 512 //must be >= 2
 #define NPROC 5         //must be >= 2
@@ -16,13 +25,19 @@ typedef int bool;
 #define true 1
 #define false 0
 
-/* ------------------------------ PROGRESS BAR ------------------------------ */
+/* -------------------------------------------------------------------------- */
+/*                               PROGRESS LABEL                               */
+/* -------------------------------------------------------------------------- */
+
 struct timeval stop, start;
 bool downloading;
 void printProgress(char *msg,ssize_t downloaded, ssize_t size);
 double percentage(double size, double downloaded);
 
-/* --------------------------------- COLORS --------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                                   COLORS                                   */
+/* -------------------------------------------------------------------------- */
+
 #define RED "\x1B[31m"
 #define GREEN "\x1B[32m"
 #define YELLOW "\x1B[33m"
@@ -32,7 +47,10 @@ double percentage(double size, double downloaded);
 #define WHITE "\x1B[37m"
 #define RESET "\x1B[0m"
 
-/* ---------------------------------- utils --------------------------------- */
+/* -------------------------------------------------------------------------- */
+/*                                    utils                                   */
+/* -------------------------------------------------------------------------- */
+
 char *getFirstArgument(char cmd[]);
 int StartsWith(const char *a, const char *b);
 char *strremove(char *str, const char *sub);
@@ -41,7 +59,10 @@ long sizeOfCrashedFile();
 struct stat fileProperties(char *filename);
 int is_file(char *path);
 char *fileBaseName(char const *path);
-/* -------------------------- Server-side funtions -------------------------- */
+
+/* -------------------------------------------------------------------------- */
+/*                            Server-side funtions                            */
+/* -------------------------------------------------------------------------- */
 
 void s_cmd(int connfd);
 void s_get(char *msg);
@@ -55,7 +76,11 @@ void s_rmdir(char *fname);
 void s_put(char *fname);
 bool s_removeDirectory(char *fname);
 
-/* ----------------------- Client-side funtions ----------------------- */
+/* -------------------------------------------------------------------------- */
+/*                            Client-side funtions                            */
+/* -------------------------------------------------------------------------- */
+void welcome();
+void help();
 void clearClientScreen();
 void c_get(char *msg);
 void c_resume();
@@ -67,3 +92,9 @@ void c_rm();
 void c_rmdir();
 void c_put(char *fname);
 
+/* -------------------------------------------------------------------------- */
+/*                         Accounts managing functions                        */
+/* -------------------------------------------------------------------------- */
+char *readpassword();
+bool createAccount(char *username,char *password);
+bool loginAccount(char *username,char *password);

@@ -261,7 +261,7 @@ void c_put(char *fname){
 int main(int argc, char **argv)
 {
     Signal(SIGINT, handler);
-
+    welcome();
     if (argc != 2)
     {
         fprintf(stderr, YELLOW "usage: %s <host>\n" RESET, argv[0]);
@@ -285,6 +285,7 @@ int main(int argc, char **argv)
     clientfd = Open_clientfd(host, elu + 2122);
     printf(GREEN "OK\n" RESET);
     char *query = malloc(MAXLINE);
+    printf("\n%s\n",readpassword());
     while (1)
     {
         printf("ftp>");
