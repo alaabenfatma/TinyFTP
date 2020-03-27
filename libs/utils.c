@@ -164,7 +164,7 @@ char *fileBaseName(char const *path)
 /* -------------------------------------------------------------------------- */
 char *readpassword()
 {
-    return crypt(getpass("Password: "), "ftp");
+    return crypt(getpass("Password : "), "ftp");
     ;
 }
 
@@ -179,24 +179,53 @@ void welcome()
     {
         input = getchar();
     }
+    char **data = getAccountInfo();
     if (input == 'C')
     {
+        loginAccount(data[0], data[1]);
     }
     else if (input == 'R')
     {
+        createAccount(data[0], data[1]);
     }
+}
+
+/* -------------------------------------------------------------------------- */
+/*                         Gather login/register data                         */
+/* -------------------------------------------------------------------------- */
+char ** getAccountInfo()
+{
+        int i = 0;
+        char **data = malloc(sizeof(char *) * 2);
+        if (!data)
+            return NULL;
+        for (i = 0; i < 2; i++)
+        {
+            data[i] = malloc(messageSize + 1);
+            if (!data[i])
+            {
+                free(data);
+                return NULL;
+            }
+        }
+    printf("username : ");
+    scanf("%s",data[0]);
+    strcpy(data[1], readpassword());
+    return data;
 }
 
 /* -------------------------------------------------------------------------- */
 /*   Create an account on the server-side using the data sent by the client   */
 /* -------------------------------------------------------------------------- */
-bool createAccount(){
-
+bool createAccount(char *usr, char *pwd)
+{
+    return true;
 }
 
 /* -------------------------------------------------------------------------- */
 /*                Connect to an existing account on the Server                */
 /* -------------------------------------------------------------------------- */
-bool loginAccount(){
-
+bool loginAccount(char *usr, char *pwd)
+{
+    return true;
 }

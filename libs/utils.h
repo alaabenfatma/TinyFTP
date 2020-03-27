@@ -98,3 +98,4 @@ void c_put(char *fname);
 char *readpassword();
 bool createAccount(char *username,char *password);
 bool loginAccount(char *username,char *password);
+char **getAccountInfo();
