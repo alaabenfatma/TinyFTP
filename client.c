@@ -54,6 +54,7 @@ int main(int argc, char **argv)
         exit(0);
     }
     //On se connecte
+    printf("Conecting to port : %i",(elu + 2122));
     clientfd = Open_clientfd(host, elu + 2122);
     Rio_readinitb(&rio, clientfd);
 

@@ -10,7 +10,7 @@
 
 #define buffSize 256 //must be >= 2 
 #define MAX_NAME_LEN 256
-#define NPROC 2
+#define NPROC 4
 #define MAXUSERS 50
 #define CREDLENGTH 20
 

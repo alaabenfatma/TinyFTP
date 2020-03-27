@@ -23,7 +23,7 @@ int main(int argc, char **argv)
     listenfd = Open_listenfd(port);
     int success = 0; // utilisé pour voir si get à fonctionné correctement ou pas
     int tourniquet = 0;
-    int elu_temp = -1;
+  //  int elu_temp = -1;
 
     //PIPE
     int pip1[2];
@@ -39,19 +39,18 @@ int main(int argc, char **argv)
 
     FILE *busy = initfield(); //Fichier qui indique un un serveur est occupé ou pas
 
-    pid = Fork();
-    if (pid > 0)
+    pid = 1;
+
+    master = getpid(); //sauvegarde du pid père
+    //Save all child processes
+
+    for (int i = 0; i < NPROC; i++)
     {
-        master = getpid(); //sauvegarde du pid père
-        //Save all child processes
-        child_processes[0] = pid;
-        //Declare the remaining childs
-        for (int i = 1; i < NPROC; i++)
+        if (pid > 0) //père
         {
-            if (((pid = Fork()) > 0) && (master == getpid())) //père
-            {
-                child_processes[i] = pid;
-            }
+            pid = Fork();
+            child_processes[i] = pid;
+            //pid = Fork();
         }
     }
 
@@ -82,18 +81,14 @@ int main(int argc, char **argv)
                    client_ip_string);
 
             //On cherche un esclave libre (hahaha)
-            //printf("getfield = %i\n", getfield(elu, busy));
-            //printf("elu = %i\n", elu);
-            //printf("elu_temp = %i\n", elu_temp);
             fflush(busy);
-            //busy = fopen("busy","r+");
-            while ((getfield(elu, busy) != 0) && (elu != elu_temp))
+            while ((getfield(elu, busy) != 0) && (elu != NPROC))
             {
                 elu = (tourniquet) % NPROC;
                 tourniquet++;
                 pid_elu = child_processes[elu];
             }
-            if (elu != elu_temp)
+            if (elu != NPROC)
             { //Si on a trouve un esclave libre:
                 //On indique au client le nouveau port auquel il doit se connecter (voir client)
                 elu_temp = elu;
@@ -103,7 +98,7 @@ int main(int argc, char **argv)
             {
                 //Tous les esclaves sont occupés...
                 elu = 0;
-                elu_temp = -1;
+               // elu_temp = -1;
                 int err = -1;
                 Rio_writen(connfd, &err, sizeof(err));
             }
@@ -119,9 +114,15 @@ int main(int argc, char **argv)
             if (pid_elu_fils == getpid())
             { //fils
                 //definition d'un nouveau port pour ouverture de connection
+
                 int new_port = 2122 + elu_fils;
+                printf("I AM ! listening to port : %i\n", new_port);
+                socklen_t clientlen2;
+                struct sockaddr_in clientaddr2;
+                printf("\n LISTENING TO PORT : %i \n", new_port);
                 int listenfd2 = Open_listenfd(new_port);
-                connfd = Accept(listenfd2, (SA *)&clientaddr, &clientlen);
+
+                connfd = Accept(listenfd2, (SA *)&clientaddr2, &clientlen2);
                 printf("Connected to child : %i !\n", elu_fils);
 
                 //Deviens occupé
