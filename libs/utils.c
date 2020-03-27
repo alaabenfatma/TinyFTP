@@ -1,25 +1,9 @@
 #include "../libs/csapp.h"
 #include "../libs/utils.h"
 
-struct stat fileProperties(char *filename)
-{
-    struct stat st;
-    stat(filename, &st);
-    return st;
-}
-char *strremove(char *str, const char *sub)
-{
-    size_t len = strlen(sub);
-    if (len > 0)
-    {
-        char *p = str;
-        while ((p = strstr(p, sub)) != NULL)
-        {
-            memmove(p, p + len, strlen(p + len) + 1);
-        }
-    }
-    return str;
-}
+/* -------------------------------------------------------------------------- */
+/*            Get the name of the file that we failed to download.            */
+/* -------------------------------------------------------------------------- */
 char *nameOfCrashedFile()
 {
     FILE *f;
@@ -30,6 +14,10 @@ char *nameOfCrashedFile()
     fclose(f);
     return fname;
 }
+
+/* -------------------------------------------------------------------------- */
+/*      Get the size (post-crash) of the file that we failed to download.     */
+/* -------------------------------------------------------------------------- */
 long sizeOfCrashedFile()
 {
     FILE *f;
@@ -43,6 +31,9 @@ long sizeOfCrashedFile()
     return (long)strtol(fname, err, 10);
 }
 
+/* -------------------------------------------------------------------------- */
+/*    A cool progress bar to help us keep track of the transfer operations.   */
+/* -------------------------------------------------------------------------- */
 void printProgress(char *msg, ssize_t downloaded, ssize_t size)
 {
     int _percentage = (int)percentage((double)size, (double)downloaded);
@@ -51,18 +42,24 @@ void printProgress(char *msg, ssize_t downloaded, ssize_t size)
     printf(RESET);
     fflush(stdout);
 }
-
 double percentage(double size, double downloaded)
 {
     return (double)downloaded / size * 100.0;
 }
-int StartsWith(const char *a, const char *b)
+
+/* -------------------------------------------------------------------------- */
+/*                Return true if string a starts with string b                */
+/* -------------------------------------------------------------------------- */
+bool StartsWith(const char *a, const char *b)
 {
     if (strncmp(a, b, strlen(b)) == 0)
-        return 1;
-    return 0;
+        return true;
+    return false;
 }
 
+/* -------------------------------------------------------------------------- */
+/*          Return the first arg from a cmd .i.e "rm file" => "file"          */
+/* -------------------------------------------------------------------------- */
 char *getFirstArgument(char cmd[])
 {
     char *argument = malloc(strlen(cmd));
@@ -91,6 +88,23 @@ char *getFirstArgument(char cmd[])
     }
 
     return argument;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                      Remove a substring from a string                      */
+/* -------------------------------------------------------------------------- */
+char *strremove(char *str, const char *sub)
+{
+    size_t len = strlen(sub);
+    if (len > 0)
+    {
+        char *p = str;
+        while ((p = strstr(p, sub)) != NULL)
+        {
+            memmove(p, p + len, strlen(p + len) + 1);
+        }
+    }
+    return str;
 }
 
 /* ------------------------ return false if directory ----------------------- */
@@ -160,6 +174,16 @@ char *fileBaseName(char const *path)
 }
 
 /* -------------------------------------------------------------------------- */
+/*                    Get the properties of a certain file                    */
+/* -------------------------------------------------------------------------- */
+struct stat fileProperties(char *filename)
+{
+    struct stat st;
+    stat(filename, &st);
+    return st;
+}
+
+/* -------------------------------------------------------------------------- */
 /*                           Securely read password                           */
 /* -------------------------------------------------------------------------- */
 char *readpassword()
@@ -193,23 +217,23 @@ void welcome()
 /* -------------------------------------------------------------------------- */
 /*                         Gather login/register data                         */
 /* -------------------------------------------------------------------------- */
-char ** getAccountInfo()
+char **getAccountInfo()
 {
-        int i = 0;
-        char **data = malloc(sizeof(char *) * 2);
-        if (!data)
-            return NULL;
-        for (i = 0; i < 2; i++)
+    int i = 0;
+    char **data = malloc(sizeof(char *) * 2);
+    if (!data)
+        return NULL;
+    for (i = 0; i < 2; i++)
+    {
+        data[i] = malloc(messageSize + 1);
+        if (!data[i])
         {
-            data[i] = malloc(messageSize + 1);
-            if (!data[i])
-            {
-                free(data);
-                return NULL;
-            }
+            free(data);
+            return NULL;
         }
+    }
     printf("username : ");
-    scanf("%s",data[0]);
+    scanf("%s", data[0]);
     strcpy(data[1], readpassword());
     return data;
 }
@@ -228,4 +252,99 @@ bool createAccount(char *usr, char *pwd)
 bool loginAccount(char *usr, char *pwd)
 {
     return true;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                              Create a CSV file                             */
+/* -------------------------------------------------------------------------- */
+FILE *initfield()
+{
+    FILE *stream = fopen("busy", "w+");
+    for (int i = 0; i < NPROC - 1; i++)
+    {
+        fputc('0', stream);
+        fputc(';', stream);
+    }
+    fputc('0', stream);
+    fflush(stream);
+    return stream;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                       Modify one line of the CSV file                      */
+/* -------------------------------------------------------------------------- */
+//modifie la colone el par num dans p
+void setfield(int el, char num, FILE *p)
+{
+    rewind(p);
+    if (el == 0)
+    {
+        fputc(num, p);
+    }
+    else
+    {
+        char ch;
+        int nbv = 0;
+        while (((ch = fgetc(p)) != EOF) && (nbv != el - 1))
+        {
+            if (ch == ';')
+            {
+                nbv++;
+            }
+        }
+        if (ch != EOF)
+        {
+            ch = fgetc(p);
+            if (ch != EOF)
+            {
+                fputc(num, p);
+            }
+            else
+            {
+                printf("%i is too far\n", el);
+            }
+        }
+        else
+        {
+            printf("%i is too far\n", el);
+        }
+    }
+    fflush(p);
+}
+
+/* -------------------------------------------------------------------------- */
+/*                           Get one of the CSV file                          */
+/* -------------------------------------------------------------------------- */
+//rend la colone el du fichier p
+int getfield(int el, FILE *p)
+{
+    rewind(p);
+    char ch = '\0';
+    if (el == 0)
+    {
+        ch = fgetc(p);
+        return (ch - '0');
+    }
+    else
+    {
+        int nbv = 0;
+        while ((ch!= EOF) && (nbv != el ))
+        {
+            ch = fgetc(p);
+            if (ch == ';')
+            {
+                nbv++;
+            }
+        }
+        if (ch != EOF)
+        {
+            ch = fgetc(p);
+            return (ch - '0');
+        }
+        else
+        {
+            printf("%i is too far\n", el);
+            return -1;
+        }
+    }
 }

@@ -52,7 +52,7 @@ double percentage(double size, double downloaded);
 /* -------------------------------------------------------------------------- */
 
 char *getFirstArgument(char cmd[]);
-int StartsWith(const char *a, const char *b);
+bool StartsWith(const char *a, const char *b);
 char *strremove(char *str, const char *sub);
 char *nameOfCrashedFile();
 long sizeOfCrashedFile();
@@ -99,3 +99,10 @@ char *readpassword();
 bool createAccount(char *username,char *password);
 bool loginAccount(char *username,char *password);
 char **getAccountInfo();
+
+/* -------------------------------------------------------------------------- */
+/*                                   CSV IO                                   */
+/* -------------------------------------------------------------------------- */
+FILE *initfield();
+void setfield(int el, char num, FILE *p);
+int getfield(int el, FILE *p);
