@@ -259,7 +259,7 @@ bool loginAccount(char *usr, char *pwd)
 /* -------------------------------------------------------------------------- */
 FILE *initfield()
 {
-    FILE *stream = fopen("busy", "w+");
+    FILE *stream = fopen("busy.log", "w+");
     for (int i = 0; i < NPROC - 1; i++)
     {
         fputc('0', stream);
