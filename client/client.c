@@ -261,6 +261,7 @@ void c_put(char *fname){
 
 int main(int argc, char **argv)
 {
+    
     Signal(SIGINT, handler);
     if (argc != 2)
     {
@@ -273,27 +274,7 @@ int main(int argc, char **argv)
      * If necessary, Open_clientfd will perform the name resolution
      * to obtain the IP address.
      */
-    clientfd = Open_clientfd(host, port); 
-    /*
-     * At this stage, the connection is established between the client
-     * and the server OS ... but it is possible that the server application
-     * has not yet called "Accept" for this connection
-     */
-    printf("Establishing connection...\n");
-    Rio_readinitb(&rio, clientfd);
-    //Ici, on le serveur va dire au client sur quel fils il faut se connecter
-    int elu;
-    Rio_readnb(&rio, &elu, sizeof(elu));
-    if(elu == -1){
-        //Aucun serveur n'est libre...
-        printf("Aucun serveur n'est libre, il faut qu'un autre client ce deconnecte.\n");
-        exit(0);
-    }
-    //On se connecte
-    printf("%d",(elu + 2122));
-    clientfd = Open_clientfd(host, elu  + 2122);
-    
-    printf(GREEN "OK\n" RESET);
+    clientfd = forceConnect(host,port,5);
     char *query = malloc(MAXLINE);
     Rio_readinitb(&rio, clientfd);
     while (1)

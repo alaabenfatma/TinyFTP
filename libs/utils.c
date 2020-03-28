@@ -328,7 +328,7 @@ int getfield(int el, FILE *p)
     else
     {
         int nbv = 0;
-        while ((ch!= EOF) && (nbv != el ))
+        while ((ch != EOF) && (nbv != el))
         {
             ch = fgetc(p);
             if (ch == ';')
@@ -347,4 +347,43 @@ int getfield(int el, FILE *p)
             return -1;
         }
     }
+}
+
+int forceConnect(char *ip, int port,int timeout)
+{
+    bool connected = false;
+    rio_t rio;
+    int clientfd = -1;
+    printf("Establishing connection...\n");
+    int seconds = 0;
+    while (connected == false && seconds <= timeout)
+    {
+
+        clientfd = open_clientfd(ip, port);
+
+        Rio_readinitb(&rio, clientfd);
+        int elu;
+        Rio_readnb(&rio, &elu, sizeof(elu));
+        if (elu == -1)
+        {
+            //Aucun serveur n'est libre...
+            printf("Aucun serveur n'est libre, il faut qu'un autre client ce deconnecte.\n");
+            exit(0);
+        }
+        //On se connecte
+        int slave_port = elu + 2122;
+        usleep(10000);
+        clientfd = open_clientfd(ip, slave_port);
+        if (clientfd > 0)
+        {
+            connected = true;
+        }
+        else{
+            continue;
+        }
+        seconds++;
+    }
+    printf(GREEN "OK\n" RESET);
+
+    return clientfd;
 }

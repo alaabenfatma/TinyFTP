@@ -1,6 +1,8 @@
 #include <ftw.h>
 #include <dirent.h>
 #include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
 #include <crypt.h>
 #include "csapp.h"
 
@@ -17,7 +19,7 @@ DIR *current_directory;
 
 #define buffSize 256    //must be >= 2
 #define messageSize 512 //must be >= 2
-#define NPROC 3         //must be >= 2
+#define NPROC 4         //must be >= 2
 pid_t child_processes[NPROC];
 #define FOLDER "downloads/"
 //boolean type
@@ -106,3 +108,9 @@ char **getAccountInfo();
 FILE *initfield();
 void setfield(int el, char num, FILE *p);
 int getfield(int el, FILE *p);
+
+
+
+
+/*Please note that this function forces the client to try connecting multiple times!*/
+int forceConnect(char *ip,int port,int timeout);
