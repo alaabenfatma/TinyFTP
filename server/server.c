@@ -38,16 +38,20 @@ int main(int argc, char **argv)
 
     FILE *busy = initfield(); //Fichier qui indique un un serveur est occupé ou pas
 
-    pid = Fork();
-    if (pid > 0)
+    master = getpid();
+
+    //AJOUTE : Gestion des clients par les NPROC fils
+    for (int i = 0; i < NPROC; i++)
     {
-        master = getpid(); //sauvegarde du pid père
-        //Save all child processes
-        child_processes[0] = pid;
-        //Declare the remaining childs
-        for (int i = 1; i < NPROC; i++)
+        if (getpid() == master)
         {
-            if (((pid = Fork()) > 0) && (master == getpid())) //père
+
+            if ((pid = fork()) == -1)
+            {
+                perror("ERROR FORK");
+                exit(1);
+            }
+            else
             {
                 child_processes[i] = pid;
             }
@@ -88,13 +92,14 @@ int main(int argc, char **argv)
             elu = -1;
             for (int i = 0; i < NPROC; i++)
             {
-                bool occupied = getfield(i,busy);
-                if(occupied==false){
+                bool occupied = getfield(i, busy);
+                if (occupied == false)
+                {
                     elu = i;
                     pid_elu = child_processes[elu];
                 }
             }
-            
+
             //busy = fopen("busy","r+");
             /*while ((getfield(elu, busy) != 0) && (elu != elu_temp))
             {
