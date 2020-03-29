@@ -19,7 +19,7 @@ DIR *current_directory;
 
 #define buffSize 256    //must be >= 2
 #define messageSize 512 //must be >= 2
-#define NPROC 4         //must be >= 2
+#define NPROC 3         //must be >= 2
 pid_t child_processes[NPROC];
 #define FOLDER "downloads/"
 //boolean type
@@ -112,5 +112,4 @@ int getfield(int el, FILE *p);
 
 
 
-/*Please note that this function forces the client to try connecting multiple times!*/
-int forceConnect(char *ip,int port,int timeout);
+int forceConnect(rio_t *rio,char *ip,int port,int timeout);

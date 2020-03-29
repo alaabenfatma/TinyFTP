@@ -29,6 +29,7 @@ void handler(int s)
 /* -------------------------------------------------------------------------- */
 void c_get(char *query)
 {
+    int old_fd = clientfd;
     Rio_readinitb(&rio, clientfd);
     char contents[buffSize];
     if ((Rio_readnb(&rio, contents, 1)) > 0)
@@ -71,6 +72,7 @@ void c_get(char *query)
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "File has been downloaded successfully.\n" RESET);
     printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
+    clientfd = old_fd;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -128,6 +130,7 @@ void c_resume()
     double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "%ld bytes received in %f seconds (%f Kbytes/s)\n" RESET, file_size, secs, (file_size / 1024 / secs));
+    remove("crash.log");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -141,7 +144,6 @@ void c_ls()
 
     while ((Rio_readnb(&rio, fname, messageSize)))
     {
-
         Rio_readnb(&rio, &type, sizeof(char));
         if (fname[0] == EOF || sizeof fname == 0)
         {
@@ -167,7 +169,7 @@ void c_pwd()
 {
     char *working_directory = malloc(messageSize);
     Rio_readinitb(&rio, clientfd);
-    Rio_readnb(&rio, working_directory, messageSize);
+    Rio_readn(clientfd, working_directory, messageSize);
     printf("%s\n", working_directory);
 }
 
@@ -274,12 +276,13 @@ int main(int argc, char **argv)
      * If necessary, Open_clientfd will perform the name resolution
      * to obtain the IP address.
      */
-    clientfd = forceConnect(host,port,5);
+    clientfd = forceConnect(&rio,host,port,5);
     char *query = malloc(MAXLINE);
     Rio_readinitb(&rio, clientfd);
     while (1)
     {
-        printf("ftp>");
+        strcpy(rio.rio_buf , "");
+        printf("[*%d*,%d,%s,%d]ftp>",clientfd,rio.rio_fd,rio.rio_buf,rio.rio_cnt);
         if (fgets(query, messageSize, stdin) == NULL)
         {
             break;
@@ -331,6 +334,7 @@ int main(int argc, char **argv)
             if (strlen(query) > 0)
                 printf(MAGENTA "This command is unknown.\n" RESET);
         }
+        fflush(stdin);
     }
     Close(clientfd);
     exit(0);

@@ -140,7 +140,7 @@ void s_resume()
 }
 void s_ls()
 {
-
+    printf("ls\n");
     /* -- can be either f or d -- */
     char type = 'f';
     struct dirent *dir;
@@ -149,6 +149,7 @@ void s_ls()
     {
         while ((dir = readdir(current_directory)) != NULL)
         {
+            fflush(stdout);
             Rio_writen(Connfd, dir->d_name, messageSize);
 
             /* ----- Finding the type of the file helps us with printing the colors ----- */
@@ -161,7 +162,8 @@ void s_ls()
 
         type = EOF;
         Rio_writen(Connfd, &type, messageSize);
-        Rio_writen(Connfd, &type, sizeof(char));
+        Rio_writen(Connfd, &type, messageSize);
+
         closedir(current_directory);
     }
 }
@@ -204,8 +206,9 @@ void s_rmdir(char *fname)
     bool error = !(s_removeDirectory(fname));
     Rio_writen(Connfd, &error, sizeof(bool));
 }
-void s_rm(char *fname){
-    bool error = (remove(fname)!=0);
+void s_rm(char *fname)
+{
+    bool error = (remove(fname) != 0);
     Rio_writen(Connfd, &error, sizeof(bool));
 }
 void s_put(char *filename)
@@ -226,7 +229,7 @@ void s_put(char *filename)
         }
     }
     ssize_t original_size, s;
-    strcpy(filename,fileBaseName(filename));
+    strcpy(filename, fileBaseName(filename));
     Rio_readnb(&rio, &original_size, sizeof(original_size));
     FILE *f;
 

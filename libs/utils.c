@@ -349,21 +349,20 @@ int getfield(int el, FILE *p)
     }
 }
 
-int forceConnect(char *ip, int port,int timeout)
+int forceConnect(rio_t *rio, char *ip, int port, int timeout)
 {
     bool connected = false;
-    rio_t rio;
     int clientfd = -1;
     printf("Establishing connection...\n");
     int seconds = 0;
-    while (connected == false && seconds <= timeout)
+while (connected == false && seconds <= timeout)
     {
-
-        clientfd = open_clientfd(ip, port);
-
-        Rio_readinitb(&rio, clientfd);
+    clientfd = open_clientfd(ip, port);
+    
+        Rio_readinitb(rio, clientfd);
         int elu;
-        Rio_readnb(&rio, &elu, sizeof(elu));
+        Rio_readnb(rio, &elu, sizeof(elu));
+
         if (elu == -1)
         {
             //Aucun serveur n'est libre...
@@ -378,7 +377,8 @@ int forceConnect(char *ip, int port,int timeout)
         {
             connected = true;
         }
-        else{
+        else
+        {
             continue;
         }
         seconds++;

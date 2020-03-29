@@ -16,7 +16,7 @@ int main(int argc, char **argv)
     char client_hostname[256];
     int elu = 0;
     int master = 0;
-
+    strcpy(global_path,".");
     //paramètres de connection
     port = 2121;
     clientlen = (socklen_t)sizeof(clientaddr);
@@ -100,13 +100,6 @@ int main(int argc, char **argv)
                 }
             }
 
-            //busy = fopen("busy","r+");
-            /*while ((getfield(elu, busy) != 0) && (elu != elu_temp))
-            {
-                elu = (tourniquet) % NPROC;
-                tourniquet++;
-                pid_elu = child_processes[elu];
-            }*/
             if (elu > -1)
             { //Si on a trouve un esclave libre:
                 //On indique au client le nouveau port auquel il doit se connecter (voir client)
@@ -135,7 +128,7 @@ int main(int argc, char **argv)
                 //definition d'un nouveau port pour ouverture de connection
                 int new_port = 2122 + elu_fils;
                 int listenfd2 = Open_listenfd(new_port);
-                connfd = Accept(listenfd2, (SA *)&clientaddr, &clientlen);
+                int connfd = Accept(listenfd2, (SA *)&clientaddr, &clientlen);
                 printf("Connected to child : %i !\n", elu_fils);
 
                 //Deviens occupé
@@ -143,7 +136,7 @@ int main(int argc, char **argv)
                 fflush(busy);
 
                 //Initialisation du repertoire courant:
-                current_directory = opendir("./");
+                current_directory = opendir(".");
                 s_cmd(connfd);
                 Close(listenfd2);
                 Close(connfd);
