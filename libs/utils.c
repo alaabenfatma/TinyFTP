@@ -118,7 +118,7 @@ int is_file(char *path)
 /* -------------------------------------------------------------------------- */
 void clearClientScreen()
 {
-    const char *CLEAR_SCREEN_ANSI = "\e[1;1H\e[2J";
+    const char *CLEAR_SCREEN_ANSI = "\n\e[1;1H\e[2J";
     write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
 }
 
