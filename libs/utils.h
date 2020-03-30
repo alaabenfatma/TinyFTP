@@ -40,6 +40,7 @@ double percentage(double size, double downloaded);
 /*                                   COLORS                                   */
 /* -------------------------------------------------------------------------- */
 
+#define BOLD "\e[1m"
 #define RED "\x1B[31m"
 #define GREEN "\x1B[32m"
 #define YELLOW "\x1B[33m"

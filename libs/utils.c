@@ -404,8 +404,8 @@ int runTimeCheck(int fd)
 
 void help(){
     printf("These are all the possible commands\n");
-    printf("(*) All the commands that are in blue require you to log in\n");
-    printf("login : login is used to login to an account");
+    printf(BOLD"(*) All the commands that are in blue require you to log in.\n\n"RESET);
+    printf("login : login is used to log into an account");
     printf("register : register command is used to create an account\n");
     printf("get : get command is used to download a file from the FTP server\n");
     printf("resume : resume command is used to resume a failed download\n");
