@@ -21,6 +21,7 @@ void handler(int s)
         fprintf(tmp, "%s,%d", filename, downloading);
         fclose(tmp);
     }
+    wait(NULL);
     Close(clientfd);
     exit(1);
 }
@@ -121,8 +122,8 @@ void c_resume()
         {
             break;
         }
+        Rio_readnb(&rio, &downloading, __SIZEOF_LONG__);
         Fputs(contents, f);
-        downloading = +sizeof(contents);
     }
     fflush(f);
     fclose(f);

@@ -106,7 +106,6 @@ void s_resume()
     char *p = strtok(NULL, ",");
     char **eptr = malloc(__SIZEOF_LONG__);
     long position = strtol(p, eptr, 10);
-    printf("%s %ld", filename, position);
     fflush(stdout);
     Rio_readinitb(&rio, Connfd);
     /* --------------------------- Resuming the upload -------------------------- */
@@ -127,11 +126,13 @@ void s_resume()
     fseek(f, position, SEEK_SET);
     while (Fgets(buffer, buffSize, f) > 0)
     {
+       position = ftell(f);
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
             printf(RED "An error has occured during the transfer.\n" RESET);
             break;
         };
+        rio_writen(Connfd, &position, __SIZEOF_LONG__);
     }
     buffer[0] = EOF;
     Rio_writen(Connfd, buffer, buffSize);
