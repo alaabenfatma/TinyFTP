@@ -68,7 +68,8 @@ void s_get(char *filename)
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
     strcpy(msg, "+");
-    f = fopen(filename, "rb");
+    printf("you tried to open : %s\n", filename);
+    f = fopen(filename, "r");
     if (f == NULL)
     {
         strcpy(msg, "-");

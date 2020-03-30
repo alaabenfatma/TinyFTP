@@ -233,7 +233,8 @@ void c_put(char *fname){
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
     strcpy(msg, "+");
-    f = fopen(fname, "rb");
+    f = fopen(fname, "r");
+    printf("You tried to open %s\n",fname);
     if (f == NULL)
     {
         strcpy(msg, "-");

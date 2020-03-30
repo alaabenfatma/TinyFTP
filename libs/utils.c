@@ -66,7 +66,7 @@ bool StartsWith(const char *a, const char *b)
 /* -------------------------------------------------------------------------- */
 char *getFirstArgument(char cmd[])
 {
-    char *argument = malloc(strlen(cmd));
+    char *argument = malloc(strlen(cmd)+1);
     int i, j = 0;
     if (StartsWith(cmd, "rm -r"))
     {
@@ -88,6 +88,7 @@ char *getFirstArgument(char cmd[])
     for (i = i + 1; i < strlen(cmd) - 1; i++)
     {
         argument[j] = cmd[i];
+        argument[j+1] = '\0';
         j++;
     }
 
