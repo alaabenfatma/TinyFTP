@@ -79,6 +79,7 @@ void s_rm(char *fname);
 void s_rmdir(char *fname);
 void s_put(char *fname);
 bool s_removeDirectory(char *fname);
+void s_bye();
 
 /* -------------------------------------------------------------------------- */
 /*                            Client-side funtions                            */
@@ -95,6 +96,7 @@ void c_mkdir();
 void c_rm();
 void c_rmdir();
 void c_put(char *fname);
+void c_bye();
 
 /* -------------------------------------------------------------------------- */
 /*                         Accounts managing functions                        */

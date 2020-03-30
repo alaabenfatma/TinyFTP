@@ -9,6 +9,7 @@ rio_t rio;
 bool loggedIn = false;
 void handler(int s)
 {
+    Close(clientfd);
     printf("Program is closing.");
     printf("%d\n", downloading);
     if (downloading != false)
@@ -21,8 +22,6 @@ void handler(int s)
         fprintf(tmp, "%s,%d", filename, downloading);
         fclose(tmp);
     }
-    wait(NULL);
-    Close(clientfd);
     exit(1);
 }
 
@@ -110,7 +109,7 @@ void c_resume()
     ssize_t s;
     strcpy(filename, "downloads/");
     strcat(filename, nameOfCrashedFile());
-    f = fopen(filename, "a");
+    f = fopen(filename, "a+");
     gettimeofday(&start, NULL);
     Rio_readinitb(&rio, clientfd);
     downloading = sizeOfCrashedFile(filename);
@@ -262,7 +261,12 @@ void c_put(char *fname){
     printf(GREEN"\nFile has been uploaded successfully.\n"RESET);
     fclose(f);
 }
-
+void c_bye(){
+    char *msg = "bye";
+    Rio_writen(clientfd,&msg,messageSize);
+    Close(clientfd);
+    exit(0);
+}
 int main(int argc, char **argv)
 {
     

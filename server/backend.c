@@ -12,7 +12,7 @@ void s_cmd(int connfd)
     Rio_readinitb(&rio, Connfd);
     while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
-        printf("[CMD]" YELLOW " %s" RESET, query);
+        printf("[CLIENT]" YELLOW " %s" RESET "at %s" ,query,currentTime());
 
         if (StartsWith(query, "get"))
         {
@@ -49,6 +49,10 @@ void s_cmd(int connfd)
         else if (StartsWith(query, "put"))
         {
             s_put(getFirstArgument(query));
+        }
+        else if (StartsWith(query, "bye"))
+        {
+            s_bye();
         }
     }
 }
@@ -138,6 +142,7 @@ void s_resume()
     Rio_writen(Connfd, buffer, buffSize);
     fclose(f);
     printf("File has been uploaded.");
+    fflush(stdout);
 }
 void s_ls()
 {
@@ -253,4 +258,8 @@ void s_put(char *filename)
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "File has been downloaded successfully.\n" RESET);
     printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
+}
+
+void s_bye(){
+    printf(MAGENTA"Client has disconnected.\n"RESET);
 }
