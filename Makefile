@@ -16,7 +16,7 @@ LDFLAGS =
 LIBS += -lpthread -lcrypt
 
 INCLUDE = libs/csapp.h
-OBJS = libs/csapp.o libs/utils.o server/echo.o 
+OBJS = libs/csapp.o libs/utils.o server/backend.o 
 INCLDIR = -I.
 
 PROGS = server/server client/client

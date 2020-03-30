@@ -111,5 +111,8 @@ int getfield(int el, FILE *p);
 
 
 
-
-int forceConnect(rio_t *rio,char *ip,int port,int timeout);
+/* -------------------------------------------------------------------------- */
+/*                             Client-side helpers                            */
+/* -------------------------------------------------------------------------- */
+int establishConnection(char *ip,int port,int timeout);
+int runTimeCheck(int fd);

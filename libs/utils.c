@@ -349,19 +349,20 @@ int getfield(int el, FILE *p)
     }
 }
 
-int forceConnect(rio_t *rio, char *ip, int port, int timeout)
+int establishConnection(char *ip, int port, int timeout)
 {
     bool connected = false;
     int clientfd = -1;
     printf("Establishing connection...\n");
     int seconds = 0;
-while (connected == false && seconds <= timeout)
+    rio_t rio;
+    while (connected == false && seconds <= timeout)
     {
-    clientfd = open_clientfd(ip, port);
-    
-        Rio_readinitb(rio, clientfd);
+        clientfd = open_clientfd(ip, port);
+
+        Rio_readinitb(&rio, clientfd);
         int elu;
-        Rio_readnb(rio, &elu, sizeof(elu));
+        Rio_readnb(&rio, &elu, sizeof(elu));
 
         if (elu == -1)
         {
@@ -386,4 +387,17 @@ while (connected == false && seconds <= timeout)
     printf(GREEN "OK\n" RESET);
 
     return clientfd;
+}
+
+int runTimeCheck(int fd)
+{
+
+    /* -------------------- Check if "downloads" folder exists -------------------- */
+    DIR *dir = opendir("downloads");
+    if (!dir)
+    {
+        /* -------------- Directory does not exist. We will create it. -------------- */
+        mkdir("downloads",0700);
+    }
+    return fd;
 }
