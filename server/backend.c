@@ -64,7 +64,6 @@ void s_cmd(int connfd, int child)
 void s_get(char *filename)
 {
 
-    
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
@@ -87,8 +86,9 @@ void s_get(char *filename)
 
     while (Fgets(buffer, buffSize, f) > 0)
     {
-        
-        if(clientCrashing ==true){
+
+        if (clientCrashing == true)
+        {
             s_bye();
         }
         position = ftell(f);
@@ -271,11 +271,8 @@ void s_put(char *filename)
 
 void s_bye()
 {
-    printf("Child : %d\n", current_child);
-
-    fflush(stdout);
+    //On a eu un "bye" (voir coté client). On se deconnecte
+    //Ce libère
     setfield(current_child, '0', busy);
     fflush(busy);
-    printf(MAGENTA "Client has disconnected.\n" RESET);
-    exit(0);
 }
