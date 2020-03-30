@@ -329,6 +329,10 @@ int main(int argc, char **argv)
         {
             c_put(getFirstArgument(query));
         }
+        else if (StartsWith(query, "help"))
+        {
+            help();
+        }
         else
         {
             if (strlen(query) > 0)

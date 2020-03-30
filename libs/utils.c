@@ -401,3 +401,19 @@ int runTimeCheck(int fd)
     }
     return fd;
 }
+
+void help(){
+    printf("These are all the possible commands\n");
+    printf("(*) All the commands that are in blue require you to log in\n");
+    printf("login : login is used to login to an account");
+    printf("register : register command is used to create an account\n");
+    printf("get : get command is used to download a file from the FTP server\n");
+    printf("resume : resume command is used to resume a failed download\n");
+    printf("ls : ls command is used to list contents of a directory\n");
+    printf("pwd : pwd command displays the name of current working directory\n");
+    printf(BLUE"mkdir"RESET" : mkdir command is used to create a single directory\n");
+    printf(BLUE"rm"RESET" : rm is used to remove files or empty directories\n");
+    printf(BLUE"rm -r"RESET" : rm -r command is used to remove directories\n");
+    printf(BLUE"put"RESET" : put command is used to upload a file to the FTP server\n");
+    
+}

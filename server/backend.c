@@ -202,7 +202,7 @@ void s_mkdir(char *fname)
 void s_rmdir(char *fname)
 {
 
-    /* ------------------ error = true if something goes wrong. ----------------- */
+    /* ------------------ error = true; if something goes wrong. ----------------- */
     bool error = !(s_removeDirectory(fname));
     Rio_writen(Connfd, &error, sizeof(bool));
 }
