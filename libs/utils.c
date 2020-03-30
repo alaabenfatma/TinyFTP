@@ -202,21 +202,7 @@ char *readpassword()
 /* -------------------------------------------------------------------------- */
 void welcome()
 {
-    printf("Please connect (" CYAN "press C" RESET ") or register (" CYAN "press R" RESET ")\n");
-    char input = 'X';
-    while (input != 'C' && input != 'R')
-    {
-        input = getchar();
-    }
-    char **data = getAccountInfo();
-    if (input == 'C')
-    {
-        loginAccount(data[0], data[1]);
-    }
-    else if (input == 'R')
-    {
-        createAccount(data[0], data[1]);
-    }
+    printf("The server is "BOLD"read-only"RESET". Please login if you want to make any modifications.\n");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -358,7 +344,7 @@ int establishConnection(char *ip, int port, int timeout)
 {
     bool connected = false;
     int clientfd = -1;
-    printf("Establishing connection...\n");
+    printf("Establishing connection... ");
     int seconds = 0;
     rio_t rio;
     while (connected == false && seconds <= timeout)
@@ -372,7 +358,7 @@ int establishConnection(char *ip, int port, int timeout)
         if (elu == -1)
         {
             //Aucun serveur n'est libre...
-            printf("Aucun serveur n'est libre, il faut qu'un autre client ce deconnecte.\n");
+            printf(RED"The server is busy. Try again later.\n"RESET);
             exit(0);
         }
         //On se connecte

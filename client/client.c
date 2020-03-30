@@ -6,6 +6,7 @@ int clientfd, port;
 char filename[FILENAME_MAX];
 char *host;
 rio_t rio;
+bool loggedIn = false;
 void handler(int s)
 {
     printf("Program is closing.");
@@ -277,6 +278,7 @@ int main(int argc, char **argv)
      * to obtain the IP address.
      */
     clientfd = establishConnection(host,port,5);
+    welcome();
     char *query = malloc(MAXLINE);
     Rio_readinitb(&rio, clientfd);
     int clientX = clientfd;
