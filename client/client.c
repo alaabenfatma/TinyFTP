@@ -315,7 +315,7 @@ int main(int argc, char **argv)
         }
         else if (StartsWith(query, "clear"))
         {
-           clearClientScreen();
+           clear();
         }
         else if (StartsWith(query, "rm"))
         {

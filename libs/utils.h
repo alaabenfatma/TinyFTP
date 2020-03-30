@@ -33,7 +33,7 @@ typedef int bool;
 
 struct timeval stop, start;
 bool downloading;
-void printProgress(char *msg,ssize_t downloaded, ssize_t size);
+void printProgress(char *msg, ssize_t downloaded, ssize_t size);
 double percentage(double size, double downloaded);
 
 /* -------------------------------------------------------------------------- */
@@ -62,6 +62,7 @@ long sizeOfCrashedFile();
 struct stat fileProperties(char *filename);
 int is_file(char *path);
 char *fileBaseName(char const *path);
+char *currentTime();
 
 /* -------------------------------------------------------------------------- */
 /*                            Server-side funtions                            */
@@ -84,7 +85,7 @@ bool s_removeDirectory(char *fname);
 /* -------------------------------------------------------------------------- */
 void welcome();
 void help();
-void clearClientScreen();
+void clear();
 void c_get(char *msg);
 void c_resume();
 void c_ls();
@@ -99,8 +100,8 @@ void c_put(char *fname);
 /*                         Accounts managing functions                        */
 /* -------------------------------------------------------------------------- */
 char *readpassword();
-bool createAccount(char *username,char *password);
-bool loginAccount(char *username,char *password);
+bool createAccount(char *username, char *password);
+bool loginAccount(char *username, char *password);
 char **getAccountInfo();
 
 /* -------------------------------------------------------------------------- */
@@ -110,10 +111,8 @@ FILE *initfield();
 void setfield(int el, char num, FILE *p);
 int getfield(int el, FILE *p);
 
-
-
 /* -------------------------------------------------------------------------- */
 /*                             Client-side helpers                            */
 /* -------------------------------------------------------------------------- */
-int establishConnection(char *ip,int port,int timeout);
+int establishConnection(char *ip, int port, int timeout);
 int runTimeCheck(int fd);

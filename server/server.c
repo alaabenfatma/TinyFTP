@@ -16,13 +16,12 @@ int main(int argc, char **argv)
     char client_hostname[256];
     int elu = 0;
     int master = 0;
-    strcpy(global_path,".");
+    strcpy(global_path, ".");
     //paramètres de connection
     port = 2121;
     clientlen = (socklen_t)sizeof(clientaddr);
     listenfd = Open_listenfd(port);
     int tourniquet = 1;
-    int elu_temp = -1;
 
     //PIPE
     int pip1[2];
@@ -74,20 +73,8 @@ int main(int argc, char **argv)
             }
             connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);
             /* determine the name of the client */
-            Getnameinfo((SA *)&clientaddr, clientlen,
-                        client_hostname, 256, 0, 0, 0);
-
-            /* determine the textual representation of the client's IP address */
-            Inet_ntop(AF_INET, &clientaddr.sin_addr, client_ip_string,
-                      INET_ADDRSTRLEN);
-
-            printf("server connected to %s (%s)\n", client_hostname,
-                   client_ip_string);
 
             //On cherche un esclave libre (hahaha)
-            //printf("getfield = %i\n", getfield(elu, busy));
-            //printf("elu = %i\n", elu);
-            printf("elu_temp = %i\n", elu_temp);
             fflush(busy);
             elu = -1;
             for (int i = 0; i < NPROC; i++)
@@ -103,14 +90,12 @@ int main(int argc, char **argv)
             if (elu > -1)
             { //Si on a trouve un esclave libre:
                 //On indique au client le nouveau port auquel il doit se connecter (voir client)
-                elu_temp = elu;
                 Rio_writen(connfd, &elu, sizeof(elu));
             }
             else
             {
                 //Tous les esclaves sont occupés...
                 elu = 0;
-                elu_temp = -1;
                 int err = -1;
                 Rio_writen(connfd, &err, sizeof(err));
             }
@@ -129,7 +114,15 @@ int main(int argc, char **argv)
                 int new_port = 2122 + elu_fils;
                 int listenfd2 = Open_listenfd(new_port);
                 int connfd = Accept(listenfd2, (SA *)&clientaddr, &clientlen);
-                printf("Connected to child : %i !\n", elu_fils);
+                Getnameinfo((SA *)&clientaddr, clientlen,
+                            client_hostname, 256, 0, 0, 0);
+
+                /* determine the textual representation of the client's IP address */
+                Inet_ntop(AF_INET, &clientaddr.sin_addr, client_ip_string,
+                          INET_ADDRSTRLEN);
+                printf("[SERVER] Server connected to "BOLD"%s"RESET" ("BOLD"%s"RESET") at %s\n", client_hostname,
+                       client_ip_string,currentTime());
+                printf("This client has been linked to child ["CYAN"%d"RESET"]\n", elu_fils);
 
                 //Deviens occupé
                 setfield(elu_fils, '1', busy);

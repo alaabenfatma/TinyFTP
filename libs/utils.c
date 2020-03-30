@@ -40,6 +40,10 @@ void printProgress(char *msg, ssize_t downloaded, ssize_t size)
     printf("%s : %ld/%ld (%d%%)", msg, downloaded, size, _percentage);
     printf("\r");
     printf(RESET);
+    if(_percentage==100){
+        //remove console line after download is finished.
+        printf("\r%c[2K",27);
+    }
     fflush(stdout);
 }
 double percentage(double size, double downloaded)
@@ -116,8 +120,9 @@ int is_file(char *path)
 /* -------------------------------------------------------------------------- */
 /*        We can use this hack to clear the screen and return ftp> only       */
 /* -------------------------------------------------------------------------- */
-void clearClientScreen()
+void clear()
 {
+    /* --- Reference : https://www.geeksforgeeks.org/clear-console-c-language/ -- */
     const char *CLEAR_SCREEN_ANSI = "\n\e[1;1H\e[2J";
     write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
 }
@@ -397,23 +402,31 @@ int runTimeCheck(int fd)
     if (!dir)
     {
         /* -------------- Directory does not exist. We will create it. -------------- */
-        mkdir("downloads",0700);
+        mkdir("downloads", 0700);
     }
     return fd;
 }
 
-void help(){
+void help()
+{
     printf("These are all the possible commands\n");
-    printf(BOLD"(*) All the commands that are in blue require you to log in.\n\n"RESET);
+    printf(BOLD "(*) All the commands that are in blue require you to log in.\n\n" RESET);
     printf("login : login is used to log into an account");
     printf("register : register command is used to create an account\n");
     printf("get : get command is used to download a file from the FTP server\n");
     printf("resume : resume command is used to resume a failed download\n");
     printf("ls : ls command is used to list contents of a directory\n");
     printf("pwd : pwd command displays the name of current working directory\n");
-    printf(BLUE"mkdir"RESET" : mkdir command is used to create a single directory\n");
-    printf(BLUE"rm"RESET" : rm is used to remove files or empty directories\n");
-    printf(BLUE"rm -r"RESET" : rm -r command is used to remove directories\n");
-    printf(BLUE"put"RESET" : put command is used to upload a file to the FTP server\n");
-    
+    printf(BLUE "mkdir" RESET " : mkdir command is used to create a single directory\n");
+    printf(BLUE "rm" RESET " : rm is used to remove files or empty directories\n");
+    printf(BLUE "rm -r" RESET " : rm -r command is used to remove directories\n");
+    printf(BLUE "put" RESET " : put command is used to upload a file to the FTP server\n");
+}
+
+/* ---------------------- Get current time as a string ---------------------- */
+char *currentTime()
+{
+    time_t rawtime; 
+    time(&rawtime);
+    return asctime(localtime(&rawtime));
 }
