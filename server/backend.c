@@ -3,16 +3,20 @@
  */
 #include "../libs/utils.h"
 int Connfd;
-void s_cmd(int connfd)
+int current_child = 0;
+rio_t rio;
+bool clientCrashing = false;
+void s_cmd(int connfd, int child)
 {
     Connfd = connfd;
+    current_child = child;
     size_t n;
     char query[messageSize];
-    rio_t rio;
+
     Rio_readinitb(&rio, Connfd);
     while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
-        printf("[CLIENT]" YELLOW " %s" RESET "at %s" ,query,currentTime());
+        printf("[CLIENT]" YELLOW " %s" RESET "at %s", query, currentTime());
 
         if (StartsWith(query, "get"))
         {
@@ -60,6 +64,7 @@ void s_cmd(int connfd)
 void s_get(char *filename)
 {
 
+    
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
@@ -74,7 +79,7 @@ void s_get(char *filename)
     {
         return;
     }
-
+    Rio_readinitb(&rio, Connfd);
     /* ------------------------ Send file size to client ------------------------ */
     ssize_t size = fileProperties(filename).st_size;
     Rio_writen(Connfd, &size, sizeof(size));
@@ -82,6 +87,10 @@ void s_get(char *filename)
 
     while (Fgets(buffer, buffSize, f) > 0)
     {
+        
+        if(clientCrashing ==true){
+            s_bye();
+        }
         position = ftell(f);
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
@@ -130,7 +139,7 @@ void s_resume()
     fseek(f, position, SEEK_SET);
     while (Fgets(buffer, buffSize, f) > 0)
     {
-       position = ftell(f);
+        position = ftell(f);
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
             printf(RED "An error has occured during the transfer.\n" RESET);
@@ -260,6 +269,13 @@ void s_put(char *filename)
     printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
 }
 
-void s_bye(){
-    printf(MAGENTA"Client has disconnected.\n"RESET);
+void s_bye()
+{
+    printf("Child : %d\n", current_child);
+
+    fflush(stdout);
+    setfield(current_child, '0', busy);
+    fflush(busy);
+    printf(MAGENTA "Client has disconnected.\n" RESET);
+    exit(0);
 }

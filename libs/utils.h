@@ -12,7 +12,7 @@
 
 char global_path[FILENAME_MAX];
 DIR *current_directory;
-
+FILE *busy;
 /* -------------------------------------------------------------------------- */
 /*                             Global definitions                             */
 /* -------------------------------------------------------------------------- */
@@ -26,6 +26,7 @@ pid_t child_processes[NPROC];
 typedef int bool;
 #define true 1
 #define false 0
+
 
 /* -------------------------------------------------------------------------- */
 /*                               PROGRESS LABEL                               */
@@ -63,12 +64,12 @@ struct stat fileProperties(char *filename);
 int is_file(char *path);
 char *fileBaseName(char const *path);
 char *currentTime();
-
+bool isValidFD(int fd);
 /* -------------------------------------------------------------------------- */
 /*                            Server-side funtions                            */
 /* -------------------------------------------------------------------------- */
 
-void s_cmd(int connfd);
+void s_cmd(int connfd,int child);
 void s_get(char *msg);
 void s_resume();
 void s_ls();
@@ -96,7 +97,7 @@ void c_mkdir();
 void c_rm();
 void c_rmdir();
 void c_put(char *fname);
-void c_bye();
+void c_bye(bool forced);
 
 /* -------------------------------------------------------------------------- */
 /*                         Accounts managing functions                        */

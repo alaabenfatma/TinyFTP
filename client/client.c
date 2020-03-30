@@ -7,11 +7,12 @@ char filename[FILENAME_MAX];
 char *host;
 rio_t rio;
 bool loggedIn = false;
+bool crashing = false;
 void handler(int s)
 {
-    Close(clientfd);
+    crashing = true;
+    sleep(1);
     printf("Program is closing.");
-    printf("%d\n", downloading);
     if (downloading != false)
     {
         ssize_t size = fileProperties(filename).st_size;
@@ -22,7 +23,9 @@ void handler(int s)
         fprintf(tmp, "%s,%d", filename, downloading);
         fclose(tmp);
     }
-    exit(1);
+    Close(clientfd);
+    exit(0);
+    
 }
 
 /* -------------------------------------------------------------------------- */
@@ -56,12 +59,14 @@ void c_get(char *query)
     gettimeofday(&start, NULL);
     Rio_readinitb(&rio, clientfd);
     while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
-    {
+    {   
+        
         if (contents[0] == EOF || sizeof contents == 0)
         {
             break;
         }
         Rio_readnb(&rio, &downloading, __SIZEOF_LONG__);
+        
         Fputs(contents, f);
         printProgress("Downloading : ", downloading, original_size);
     }
@@ -261,9 +266,11 @@ void c_put(char *fname){
     printf(GREEN"\nFile has been uploaded successfully.\n"RESET);
     fclose(f);
 }
-void c_bye(){
-    char *msg = "bye";
-    Rio_writen(clientfd,&msg,messageSize);
+void c_bye(bool forced){
+    if(forced==true){
+        char *msg = "bye";
+        Rio_writen(clientfd, &msg, messageSize);
+    }
     Close(clientfd);
     exit(0);
 }
@@ -339,6 +346,10 @@ int main(int argc, char **argv)
         else if (StartsWith(query, "help"))
         {
             help();
+        }
+        else if (StartsWith(query, "bye"))
+        {
+            c_bye(false);
         }
         else
         {

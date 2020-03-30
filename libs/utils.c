@@ -416,3 +416,8 @@ char *currentTime()
     time(&rawtime);
     return asctime(localtime(&rawtime));
 }
+
+/* -------------------------- Check if fd is valid -------------------------- */
+bool isValidFD(int fd){
+    return fcntl(fd, F_GETFD) != -1 || errno != EBADF;
+}

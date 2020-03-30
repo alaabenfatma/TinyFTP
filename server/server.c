@@ -35,7 +35,7 @@ int main(int argc, char **argv)
     pid_t *child_processes; //All child processes
     child_processes = malloc(NPROC * sizeof(pid_t));
 
-    FILE *busy = initfield(); //Fichier qui indique un un serveur est occupé ou pas
+    busy = initfield(); //Fichier qui indique un un serveur est occupé ou pas
 
     master = getpid();
 
@@ -104,6 +104,8 @@ int main(int argc, char **argv)
         }
         else
         {
+            
+
             int elu_fils; //On va lire "elu" du père avec un pipe.
             int pid_elu_fils;
             read(pip1[0], &elu_fils, sizeof(elu_fils));
@@ -120,9 +122,9 @@ int main(int argc, char **argv)
                 /* determine the textual representation of the client's IP address */
                 Inet_ntop(AF_INET, &clientaddr.sin_addr, client_ip_string,
                           INET_ADDRSTRLEN);
-                printf("[SERVER] Server connected to "BOLD"%s"RESET" ("BOLD"%s"RESET") at %s\n", client_hostname,
-                       client_ip_string,currentTime());
-                printf("This client has been linked to child ["CYAN"%d"RESET"]\n", elu_fils);
+                printf("[SERVER] Server connected to " BOLD "%s" RESET " (" BOLD "%s" RESET ") at %s\n", client_hostname,
+                       client_ip_string, currentTime());
+                printf("This client has been linked to child [" CYAN "%d" RESET "]\n", elu_fils);
 
                 //Deviens occupé
                 setfield(elu_fils, '1', busy);
@@ -130,7 +132,7 @@ int main(int argc, char **argv)
 
                 //Initialisation du repertoire courant:
                 current_directory = opendir(".");
-                s_cmd(connfd);
+                s_cmd(connfd, elu_fils);
                 Close(listenfd2);
                 Close(connfd);
                 closedir(current_directory);
