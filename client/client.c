@@ -32,7 +32,8 @@ void handler(int s)
 /* -------------------------------------------------------------------------- */
 void c_get(char *query)
 {
-    
+    int x = clientfd;
+    downloading = false;
     Rio_readinitb(&rio, clientfd);
     char contents[buffSize];
     if ((Rio_readnb(&rio, contents, 1)) > 0)
@@ -47,38 +48,39 @@ void c_get(char *query)
         {
         }
     }
-    ssize_t original_size, s;
-    Rio_readnb(&rio, &original_size, sizeof(original_size));
+    ssize_t original_size;
+    rio_readnb(&rio, &original_size, sizeof(original_size));
 
     strcpy(filename, "downloads/");
 
     strcat(filename, fileBaseName(getFirstArgument(query)));
-    remove(filename);
+    //remove(filename);
     FILE *f;
-    f = fopen(filename, "w+");
+    f = fopen(filename, "w");
     gettimeofday(&start, NULL);
-    Rio_readinitb(&rio, clientfd);
-    while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
+    while(1){
+    if (rio_readnb(&rio, contents, buffSize) > 0)
     {   
         
         if (contents[0] == EOF || sizeof contents == 0)
         {
             break;
         }
-        Rio_readnb(&rio, &downloading, sizeof(long));
+        rio_readnb(&rio, &downloading, sizeof(int));
         
         Fputs(contents, f);
         printProgress("Downloading", downloading, original_size);
     }
+    }
     fflush(f);
     fclose(f);
     gettimeofday(&stop, NULL);
-    downloading = 0;
+    downloading = false;
     double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "File has been downloaded successfully.\n" RESET);
     printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
-    
+ clientfd = x;   
 }
 
 /* -------------------------------------------------------------------------- */
