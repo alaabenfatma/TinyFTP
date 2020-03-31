@@ -89,18 +89,19 @@ void c_get(char *query)
 void c_resume()
 {
 
-    Rio_readinitb(&rio, clientfd);
     FILE *f;
+    char *crash_log = malloc(messageSize);
+    strcpy(crash_log, "X");
     f = fopen("crash.log", "r");
     if (f == NULL)
     {
-        printf(RED "No download to resume." RESET);
+        printf(RED "No download to resume.\n" RESET);
+        Rio_writen(clientfd, crash_log, messageSize);
         return;
     }
-    char *crash_log = malloc(messageSize);
-
     fscanf(f, "%s", crash_log);
     Rio_writen(clientfd, crash_log, messageSize);
+    Rio_readinitb(&rio, clientfd);
     char contents[buffSize];
     Rio_readn(clientfd, contents, sizeof(char));
 
@@ -235,7 +236,6 @@ void c_put(char *fname)
     char *msg = malloc(sizeof(char));
     strcpy(msg, "+");
     f = fopen(fname, "r");
-    printf("You tried to open %s\n", fname);
     if (f == NULL)
     {
         strcpy(msg, "-");
