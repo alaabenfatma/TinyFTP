@@ -12,10 +12,10 @@ void s_cmd(int connfd, int child)
     current_child = child;
     size_t n;
     char query[messageSize];
-
     Rio_readinitb(&rio, Connfd);
     while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
+        Connfd = runTimeCheck(connfd,"server");
         printf("[CLIENT]" YELLOW " %s" RESET "at %s", query, currentTime());
 
         if (StartsWith(query, "get"))
@@ -63,7 +63,6 @@ void s_cmd(int connfd, int child)
 
 void s_get(char *filename)
 {
-
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
@@ -87,18 +86,14 @@ void s_get(char *filename)
 
     while (Fgets(buffer, buffSize, f) > 0)
     {
-
-        if (clientCrashing == true)
-        {
-            s_bye();
-        }
         position = ftell(f);
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
-            printf(RED "An error has occured during the transfer.\n" RESET);
+            printf(RED BOLD"An error has occured during the transfer.\n" RESET);
+            exit(0);
             break;
         };
-        rio_writen(Connfd, &position, __SIZEOF_LONG__);
+        rio_writen(Connfd, &position, sizeof(long));
         printProgress("Uploading : ", position, size);
     }
     buffer[0] = EOF;
@@ -127,7 +122,7 @@ void s_resume()
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
     strcpy(msg, "+");
-    f = fopen(filename, "rb");
+    f = fopen(filename, "r");
     if (f == NULL)
     {
         strcpy(msg, "-");

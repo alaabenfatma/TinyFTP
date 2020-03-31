@@ -118,4 +118,4 @@ int getfield(int el, FILE *p);
 /*                             Client-side helpers                            */
 /* -------------------------------------------------------------------------- */
 int establishConnection(char *ip, int port, int timeout);
-int runTimeCheck(int fd);
+int runTimeCheck(int fd,char *arg);

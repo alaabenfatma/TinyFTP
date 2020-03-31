@@ -382,7 +382,7 @@ int establishConnection(char *ip, int port, int timeout)
     return clientfd;
 }
 
-int runTimeCheck(int fd)
+int runTimeCheck(int fd,char *arg)
 {
 
     /* -------------------- Check if "downloads" folder exists -------------------- */

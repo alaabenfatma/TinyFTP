@@ -32,7 +32,7 @@ void handler(int s)
 /* -------------------------------------------------------------------------- */
 void c_get(char *query)
 {
-    
+    int old_fd = clientfd;
     Rio_readinitb(&rio, clientfd);
     char contents[buffSize];
     if ((Rio_readnb(&rio, contents, 1)) > 0)
@@ -53,9 +53,8 @@ void c_get(char *query)
     strcpy(filename, "downloads/");
 
     strcat(filename, fileBaseName(getFirstArgument(query)));
-    remove(filename);
     FILE *f;
-    f = fopen(filename, "w+");
+    f = fopen(filename, "w");
     gettimeofday(&start, NULL);
     Rio_readinitb(&rio, clientfd);
     while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
@@ -65,10 +64,10 @@ void c_get(char *query)
         {
             break;
         }
-        Rio_readnb(&rio, &downloading, sizeof(long));
+        Rio_readnb(&rio, &downloading, __SIZEOF_LONG__);
         
         Fputs(contents, f);
-        printProgress("Downloading", downloading, original_size);
+        printProgress("Downloading : ", downloading, original_size);
     }
     fflush(f);
     fclose(f);
@@ -78,7 +77,7 @@ void c_get(char *query)
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "File has been downloaded successfully.\n" RESET);
     printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
-    
+    clientfd = old_fd;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -292,8 +291,8 @@ int main(int argc, char **argv)
     int clientX = clientfd;
     while (1)
     {
-        clientfd = runTimeCheck(clientX,"client");
-        printf("[%d]ftp>",clientfd);
+        clientfd = runTimeCheck(clientX);
+        printf("ftp>");
         if (fgets(query, messageSize, stdin) == NULL)
         {
             break;
