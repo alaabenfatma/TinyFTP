@@ -12,6 +12,7 @@ void s_cmd(int connfd, int child)
     current_child = child;
     size_t n;
     char query[messageSize];
+    clientCrashing = false;
     Rio_readinitb(&rio, Connfd);
     while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
@@ -90,8 +91,9 @@ void s_get(char *filename)
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
             printf(RED BOLD"An error has occured during the transfer.\n" RESET);
-            exit(0);
-            break;
+            fflush(stdout);
+            clientCrashing = true;
+            return;
         };
         rio_writen(Connfd, &position, sizeof(long));
         printProgress("Uploading : ", position, size);
@@ -139,7 +141,7 @@ void s_resume()
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
             printf(RED "An error has occured during the transfer.\n" RESET);
-            break;
+            return;
         };
         rio_writen(Connfd, &position, __SIZEOF_LONG__);
     }

@@ -10,8 +10,8 @@ bool loggedIn = false;
 bool crashing = false;
 void handler(int s)
 {
+    usleep(60000);
     crashing = true;
-    sleep(1);
     printf("Program is closing.");
     if (downloading != false)
     {
@@ -23,6 +23,7 @@ void handler(int s)
         fprintf(tmp, "%s,%d", filename, downloading);
         fclose(tmp);
     }
+    
     exit(0);
 }
 
