@@ -104,7 +104,7 @@ void c_resume()
     Rio_writen(clientfd, crash_log, messageSize);
     Rio_readinitb(&rio, clientfd);
     char contents[buffSize];
-    Rio_readn(clientfd, contents, sizeof(char));
+    Rio_readnb(&rio, contents, sizeof(char));
 
     if (StartsWith(contents, "-"))
     {
@@ -118,7 +118,7 @@ void c_resume()
     f = fopen(filename, "a");
     gettimeofday(&start, NULL);
     downloading = sizeOfCrashedFile(filename);
-    printf("Resuming %s(%d bytes) transfer has started...\n", nameOfCrashedFile(), downloading);
+    printf("Resuming "BOLD"%s (%d"RESET" bytes) transfer has started...\n", nameOfCrashedFile(), downloading);
     fflush(stdout);
     while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
     {
@@ -126,7 +126,7 @@ void c_resume()
         {
             break;
         }
-        Rio_readnb(&rio, &downloading, __SIZEOF_LONG__);
+        Rio_readnb(&rio, &downloading, sizeof(long));
         Fputs(contents, f);
     }
     fflush(f);

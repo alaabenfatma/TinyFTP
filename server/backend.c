@@ -105,21 +105,31 @@ void s_get(char *filename)
 void s_resume()
 {
 
+int x=0;
     /* ---------------------------- Init resume data ---------------------------- */
 
-    printf("Resuming transfer.\n");
+    
     rio_t rio;
     Rio_readinitb(&rio, Connfd);
-    char str[messageSize];
-    Rio_readnb(&rio, str, messageSize);
+
+    char *str = malloc(messageSize);
+    Rio_readnb(&rio,str, messageSize);
+    
+    
+    if(StartsWith(str,"X")){
+        printf(RED"Client trying to resume a non-found download operation.\n"RESET);
+        fflush(stdout);
+        return;
+    }
+    
 
     char *filename = strtok(str, ",");
     char *p = strtok(NULL, ",");
     char **eptr = malloc(__SIZEOF_LONG__);
     long position = strtol(p, eptr, 10);
     fflush(stdout);
-    Rio_readinitb(&rio, Connfd);
     /* --------------------------- Resuming the upload -------------------------- */
+    printf("Resuming transfer.\n");
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
@@ -129,7 +139,8 @@ void s_resume()
     {
         strcpy(msg, "-");
     }
-    Rio_writen(Connfd, msg, 1);
+    Rio_writen(Connfd, msg, sizeof(char));
+    printf("%d\n",x++);
     if (StartsWith(msg, "-"))
     {
         return;
@@ -143,7 +154,7 @@ void s_resume()
             printf(RED "An error has occured during the transfer.\n" RESET);
             return;
         };
-        rio_writen(Connfd, &position, __SIZEOF_LONG__);
+        rio_writen(Connfd, &position, sizeof(long));
     }
     buffer[0] = EOF;
     Rio_writen(Connfd, buffer, buffSize);
