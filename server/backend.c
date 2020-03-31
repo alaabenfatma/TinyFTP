@@ -243,7 +243,7 @@ void s_put(char *filename)
         }
     }
     ssize_t original_size, s;
-    strcpy(filename, fileBaseName(filename));
+    //strcpy(filename, filename);
     Rio_readnb(&rio, &original_size, sizeof(original_size));
     FILE *f;
 
