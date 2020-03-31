@@ -34,8 +34,8 @@ void c_get(char *query)
     int x = clientfd;
     downloading = false;
     Rio_readinitb(&rio, clientfd);
-    char contents[buffSize];
-    if ((Rio_readnb(&rio, contents, 1)) > 0)
+    char *contents = malloc(buffSize);
+    Rio_readnb(&rio, contents, 1);
     {
         if (StartsWith(contents, "-"))
         {
@@ -66,7 +66,7 @@ void c_get(char *query)
             {
                 break;
             }
-            rio_readnb(&rio, &downloading, sizeof(int));
+            rio_readnb(&rio, &downloading, sizeof(long));
 
             Fputs(contents, f);
             printProgress("Downloading", downloading, original_size);
