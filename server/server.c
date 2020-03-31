@@ -40,7 +40,7 @@ int main(int argc, char **argv)
     master = getpid();
 
     //AJOUTE : Gestion des clients par les NPROC fils
-    for (int i = 0; i < NPROC; i++)
+    int i; for( i = 0; i < NPROC; i++)
     {
         if (getpid() == master)
         {
@@ -59,6 +59,7 @@ int main(int argc, char **argv)
 
     while (1)
     {
+        int i;
         if (master == getpid()) //père
         {
             //On utilise le modulo pour répartir de manière circulaire
@@ -66,7 +67,7 @@ int main(int argc, char **argv)
             tourniquet++;
             int pid_elu = child_processes[elu];
             //On va écrire elu et son pid au fils
-            for (int i = 0; i < NPROC; i++)
+             for( i = 0; i < NPROC; i++)
             {
                 write(pip1[1], &elu, sizeof(elu));
                 write(pip2[1], &pid_elu, sizeof(pid_elu));
@@ -77,7 +78,7 @@ int main(int argc, char **argv)
             //On cherche un esclave libre (hahaha)
             fflush(busy);
             elu = -1;
-            for (int i = 0; i < NPROC; i++)
+             for( i = 0; i < NPROC; i++)
             {
                 bool occupied = getfield(i, busy);
                 if (occupied == false)
@@ -142,7 +143,7 @@ int main(int argc, char **argv)
             }
         }
     }
-    for (int i = 0; i < NPROC; i++)
+     for( i = 0; i < NPROC; i++)
     {
         Wait(NULL);
     }
