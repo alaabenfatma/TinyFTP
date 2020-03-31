@@ -24,7 +24,6 @@ void handler(int s)
         fclose(tmp);
     }
     exit(0);
-    
 }
 
 /* -------------------------------------------------------------------------- */
@@ -58,19 +57,20 @@ void c_get(char *query)
     FILE *f;
     f = fopen(filename, "w");
     gettimeofday(&start, NULL);
-    while(1){
-    if (rio_readnb(&rio, contents, buffSize) > 0)
-    {   
-        
-        if (contents[0] == EOF || sizeof contents == 0)
+    while (1)
+    {
+        if (rio_readnb(&rio, contents, buffSize) > 0)
         {
-            break;
+
+            if (contents[0] == EOF || sizeof contents == 0)
+            {
+                break;
+            }
+            rio_readnb(&rio, &downloading, sizeof(int));
+
+            Fputs(contents, f);
+            printProgress("Downloading", downloading, original_size);
         }
-        rio_readnb(&rio, &downloading, sizeof(int));
-        
-        Fputs(contents, f);
-        printProgress("Downloading", downloading, original_size);
-    }
     }
     fflush(f);
     fclose(f);
@@ -80,7 +80,7 @@ void c_get(char *query)
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "File has been downloaded successfully.\n" RESET);
     printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
- clientfd = x;   
+    clientfd = x;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -88,6 +88,8 @@ void c_get(char *query)
 /* -------------------------------------------------------------------------- */
 void c_resume()
 {
+
+    Rio_readinitb(&rio, clientfd);
     FILE *f;
     f = fopen("crash.log", "r");
     if (f == NULL)
@@ -99,29 +101,23 @@ void c_resume()
 
     fscanf(f, "%s", crash_log);
     Rio_writen(clientfd, crash_log, messageSize);
-    Rio_readinitb(&rio, clientfd);
     char contents[buffSize];
-    if ((Rio_readnb(&rio, contents, 1)) > 0)
+    Rio_readn(clientfd, contents, sizeof(char));
+
+    if (StartsWith(contents, "-"))
     {
-        if (StartsWith(contents, "-"))
-        {
-            printf(RED "An error has occured on the server side. Please check your command.\n" RESET);
-            fflush(stdout);
-            return;
-        }
-        else
-        {
-        }
+        printf(RED "An error has occured on the server side. Please check your command.\n" RESET);
+        fflush(stdout);
+        return;
     }
     ssize_t s;
     strcpy(filename, "downloads/");
     strcat(filename, nameOfCrashedFile());
-    f = fopen(filename, "a+");
+    f = fopen(filename, "a");
     gettimeofday(&start, NULL);
-    Rio_readinitb(&rio, clientfd);
     downloading = sizeOfCrashedFile(filename);
-    printf("Resuming file transfer has started...\n");
-
+    printf("Resuming %s(%d bytes) transfer has started...\n", nameOfCrashedFile(), downloading);
+    fflush(stdout);
     while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
     {
         if (contents[0] == EOF || sizeof contents == 0)
@@ -210,7 +206,8 @@ void c_mkdir()
         printf(RED "Directory could not be created." RESET);
     }
 }
-void c_rm(){
+void c_rm()
+{
     /* -------- We have to ONLY check if the rm got executed well or not -------- */
     bool error = false;
     Rio_readinitb(&rio, clientfd);
@@ -220,7 +217,8 @@ void c_rm(){
         printf(RED "File could not be removed." RESET);
     }
 }
-void c_rmdir(){
+void c_rmdir()
+{
     /* -------- We have to ONLY check if the rm -r got executed well or not -------- */
     bool error = false;
     Rio_readinitb(&rio, clientfd);
@@ -229,15 +227,15 @@ void c_rmdir(){
     {
         printf(RED "Directory could not be removed." RESET);
     }
-
 }
-void c_put(char *fname){
+void c_put(char *fname)
+{
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
     strcpy(msg, "+");
     f = fopen(fname, "r");
-    printf("You tried to open %s\n",fname);
+    printf("You tried to open %s\n", fname);
     if (f == NULL)
     {
         strcpy(msg, "-");
@@ -266,15 +264,16 @@ void c_put(char *fname){
     }
     buffer[0] = EOF;
     Rio_writen(clientfd, buffer, buffSize);
-    printf(GREEN"\nFile has been uploaded successfully.\n"RESET);
+    printf(GREEN "\nFile has been uploaded successfully.\n" RESET);
     fclose(f);
 }
-void c_bye(bool forced){
-     exit(0);
+void c_bye(bool forced)
+{
+    exit(0);
 }
 int main(int argc, char **argv)
 {
-    
+
     Signal(SIGINT, handler);
     if (argc != 2)
     {
@@ -282,20 +281,20 @@ int main(int argc, char **argv)
         exit(0);
     }
     host = argv[1];
-    port = 2121;                          /*
+    port = 2121; /*
      * Note that the 'host' can be a name or an IP address.
      * If necessary, Open_clientfd will perform the name resolution
      * to obtain the IP address.
      */
-    clientfd = establishConnection(host,port,5);
+    clientfd = establishConnection(host, port, 5);
     welcome();
     char *query = malloc(MAXLINE);
     Rio_readinitb(&rio, clientfd);
     int clientX = clientfd;
     while (1)
     {
-        clientfd = runTimeCheck(clientX,"client");
-        printf("[%d]ftp>",clientfd);
+        clientfd = runTimeCheck(clientX, "client");
+        printf("[%d]ftp>", clientfd);
         if (fgets(query, messageSize, stdin) == NULL)
         {
             break;
@@ -327,11 +326,11 @@ int main(int argc, char **argv)
         }
         else if (StartsWith(query, "clear"))
         {
-           clear();
+            clear();
         }
         else if (StartsWith(query, "rm"))
         {
-           c_rm();
+            c_rm();
         }
         else if (StartsWith(query, "rm -r"))
         {
