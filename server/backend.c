@@ -112,7 +112,7 @@ int x=0;
 
     char *str = malloc(messageSize);
     Rio_readnb(&rio,str, messageSize);
-    
+    printf("Data : %s\n",str);
     
     if(StartsWith(str,"X")){
         printf(RED"Client trying to resume a non-found download operation.\n"RESET);
@@ -125,7 +125,6 @@ int x=0;
     char *p = strtok(NULL, ",");
     char **eptr = malloc(__SIZEOF_LONG__);
     long position = strtol(p, eptr, 10);
-    printf("data : %s %lu\n",filename,position);
     fflush(stdout);
     /* --------------------------- Resuming the upload -------------------------- */
     printf("Resuming transfer.\n");

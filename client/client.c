@@ -12,7 +12,7 @@ void handler(int s)
 {
     usleep(60000);
     crashing = true;
-    printf("Program is closing.");
+    printf(MAGENTA BOLD"\nProgram is closing.\n"RESET);
     if (downloading != false)
     {
         ssize_t size = fileProperties(filename).st_size;
@@ -80,17 +80,18 @@ void c_resume()
 {
 
     FILE *f;
-    char *crash_log = malloc(messageSize);
+    char crash_log[messageSize];
     strcpy(crash_log, "X");
     f = fopen("crash.log", "r");
     if (f == NULL)
     {
         printf(RED "No download to resume.\n" RESET);
-        Rio_writen(clientfd, crash_log, messageSize);
+        Rio_writen(clientfd, &crash_log, messageSize);
         return;
     }
     fscanf(f, "%s", crash_log);
-    Rio_writen(clientfd, crash_log, messageSize);
+    usleep(60000);
+    Rio_writen(clientfd, &crash_log, messageSize);
     Rio_readinitb(&rio, clientfd);
     char contents[buffSize];
     Rio_readnb(&rio, &contents, sizeof(char));
