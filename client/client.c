@@ -32,22 +32,17 @@ void handler(int s)
 /* -------------------------------------------------------------------------- */
 void c_get(char *query)
 {
-    int x = clientfd;
     downloading = false;
     Rio_readinitb(&rio, clientfd);
     char *contents = malloc(buffSize);
     Rio_readnb(&rio, contents, 1);
+    if (StartsWith(contents, "-"))
     {
-        if (StartsWith(contents, "-"))
-        {
-            printf(RED "An error has occured on the server side. Please check your command.\n" RESET);
-            fflush(stdout);
-            return;
-        }
-        else
-        {
-        }
+        printf(RED "An error has occured on the server side. Please check your command.\n" RESET);
+        fflush(stdout);
+        return;
     }
+
     ssize_t original_size;
     rio_readnb(&rio, &original_size, sizeof(original_size));
 
@@ -70,11 +65,12 @@ void c_get(char *query)
     fclose(f);
     gettimeofday(&stop, NULL);
     downloading = false;
+
+    /* ----------------------------- Download result ---------------------------- */
     double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "File has been downloaded successfully.\n" RESET);
     printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
-    clientfd = x;
 }
 
 /* -------------------------------------------------------------------------- */
@@ -97,7 +93,7 @@ void c_resume()
     Rio_writen(clientfd, crash_log, messageSize);
     Rio_readinitb(&rio, clientfd);
     char contents[buffSize];
-    Rio_readnb(&rio, contents, sizeof(char));
+    Rio_readnb(&rio, &contents, sizeof(char));
 
     if (StartsWith(contents, "-"))
     {
@@ -105,7 +101,7 @@ void c_resume()
         fflush(stdout);
         return;
     }
-    ssize_t s;
+    
     strcpy(filename, "downloads/");
     strcat(filename, nameOfCrashedFile());
     f = fopen(filename, "a");
@@ -113,14 +109,16 @@ void c_resume()
     downloading = sizeOfCrashedFile(filename);
     printf("Resuming " BOLD "%s (%d" RESET " bytes) transfer has started...\n", nameOfCrashedFile(), downloading);
     fflush(stdout);
-    while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
+    ssize_t original_size;
+    size_t chunk = 0;
+    rio_readnb(&rio, &original_size, sizeof(original_size));
+    while (original_size != downloading)
     {
-        if (contents[0] == EOF || sizeof contents == 0)
-        {
-            break;
-        }
-        Rio_readnb(&rio, &downloading, sizeof(long));
-        Fputs(contents, f);
+        rio_readnb(&rio, contents, buffSize);
+        rio_readnb(&rio, &chunk, sizeof(long));
+        fwrite(contents, 1, chunk, f);
+        rio_readnb(&rio, &downloading, sizeof(long));
+        printProgress("Downloading", downloading, original_size);
     }
     fflush(f);
     fclose(f);

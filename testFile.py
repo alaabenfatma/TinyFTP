@@ -1,4 +1,4 @@
-f = open("file","w")
-for i in range(0,100000):
+f = open("xfile","w")
+for i in range(0,1000000):
     f.write(str(i)+"\n")
     pass

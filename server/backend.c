@@ -120,11 +120,12 @@ int x=0;
         return;
     }
     
-
+    
     char *filename = strtok(str, ",");
     char *p = strtok(NULL, ",");
     char **eptr = malloc(__SIZEOF_LONG__);
     long position = strtol(p, eptr, 10);
+    printf("data : %s %lu\n",filename,position);
     fflush(stdout);
     /* --------------------------- Resuming the upload -------------------------- */
     printf("Resuming transfer.\n");
@@ -144,19 +145,24 @@ int x=0;
         return;
     }
    
+    
+    ssize_t s,size = fileProperties(filename).st_size;
+    Rio_writen(Connfd, &size, sizeof(size));
     fseek(f, position, SEEK_SET);
-    while (Fgets(buffer, buffSize, f) > 0)
-    {
+    
+    while ((s = fread(buffer, 1, buffSize, f)) != 0) {
         position = ftell(f);
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
-            printf(RED "An error has occured during the transfer.\n" RESET);
+            printf(RED BOLD"An error has occured during the transfer.\n" RESET);
+            fflush(stdout);
+            clientCrashing = true;
             return;
         };
+        rio_writen(Connfd, &s, sizeof(long));
         rio_writen(Connfd, &position, sizeof(long));
+        printProgress("Uploading : ", position, size);
     }
-    buffer[0] = EOF;
-    Rio_writen(Connfd, buffer, buffSize);
     fclose(f);
     printf("File has been uploaded.");
     fflush(stdout);
