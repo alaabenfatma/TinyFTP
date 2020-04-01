@@ -69,7 +69,7 @@ void s_get(char *filename)
     char *msg = malloc(sizeof(char));
     strcpy(msg, "+");
     printf("you tried to open : %s\n", filename);
-    f = fopen(filename, "r");
+    f = fopen(filename, "rb");
     if (f == NULL)
     {
         strcpy(msg, "-");
@@ -81,12 +81,11 @@ void s_get(char *filename)
     }
     Rio_readinitb(&rio, Connfd);
     /* ------------------------ Send file size to client ------------------------ */
-    ssize_t size = fileProperties(filename).st_size;
+    ssize_t s,size = fileProperties(filename).st_size;
     Rio_writen(Connfd, &size, sizeof(size));
     long position;
-
-    while (Fgets(buffer, buffSize, f) > 0)
-    {
+    
+    while ((s = fread(buffer, 1, buffSize, f)) != 0) {
         position = ftell(f);
         if (rio_writen(Connfd, buffer, buffSize) != buffSize)
         {
@@ -95,11 +94,10 @@ void s_get(char *filename)
             clientCrashing = true;
             return;
         };
+        rio_writen(Connfd, &s, sizeof(long));
         rio_writen(Connfd, &position, sizeof(long));
         printProgress("Uploading : ", position, size);
     }
-    buffer[0] = EOF;
-    Rio_writen(Connfd, buffer, buffSize);
     fclose(f);
 }
 void s_resume()
@@ -145,6 +143,7 @@ int x=0;
     {
         return;
     }
+   
     fseek(f, position, SEEK_SET);
     while (Fgets(buffer, buffSize, f) > 0)
     {

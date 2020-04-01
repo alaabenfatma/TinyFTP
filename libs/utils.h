@@ -13,6 +13,7 @@
 char global_path[FILENAME_MAX];
 DIR *current_directory;
 FILE *busy;
+
 /* -------------------------------------------------------------------------- */
 /*                             Global definitions                             */
 /* -------------------------------------------------------------------------- */
@@ -26,7 +27,6 @@ pid_t child_processes[NPROC];
 typedef int bool;
 #define true 1
 #define false 0
-
 
 /* -------------------------------------------------------------------------- */
 /*                               PROGRESS LABEL                               */

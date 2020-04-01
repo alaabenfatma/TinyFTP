@@ -1,6 +1,5 @@
 #include "../libs/csapp.h"
 #include "../libs/utils.h"
-
 /* -------------------------------------------------------------------------- */
 /*            Get the name of the file that we failed to download.            */
 /* -------------------------------------------------------------------------- */
@@ -42,7 +41,7 @@ void printProgress(char *msg, ssize_t downloaded, ssize_t size)
     printf(RESET);
     if(_percentage==100){
         //remove console line after download is finished.
-        printf("\r%c[2K",27);
+       // printf("\r%c[2K",27);
     }
     fflush(stdout);
 }

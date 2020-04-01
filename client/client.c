@@ -23,7 +23,7 @@ void handler(int s)
         fprintf(tmp, "%s,%d", filename, downloading);
         fclose(tmp);
     }
-    
+
     exit(0);
 }
 
@@ -55,23 +55,22 @@ void c_get(char *query)
 
     strcat(filename, fileBaseName(getFirstArgument(query)));
     //remove(filename);
-    FILE *f;
-    f = fopen(filename, "w");
+
     gettimeofday(&start, NULL);
-    while (1)
+    FILE *f;
+    f = fopen(filename, "wb");
+    size_t chunk = 0;
+    while (original_size!= downloading)
     {
-        if (rio_readnb(&rio, contents, buffSize) > 0)
-        {
+            rio_readnb(&rio, contents, buffSize);
 
-            if (contents[0] == EOF || sizeof contents == 0)
-            {
-                break;
-            }
+            rio_readnb(&rio, &chunk, sizeof(long));
+            fwrite(contents, 1, chunk, f);
+
             rio_readnb(&rio, &downloading, sizeof(long));
-
-            Fputs(contents, f);
             printProgress("Downloading", downloading, original_size);
-        }
+        
+        
     }
     fflush(f);
     fclose(f);
@@ -118,7 +117,7 @@ void c_resume()
     f = fopen(filename, "a");
     gettimeofday(&start, NULL);
     downloading = sizeOfCrashedFile(filename);
-    printf("Resuming "BOLD"%s (%d"RESET" bytes) transfer has started...\n", nameOfCrashedFile(), downloading);
+    printf("Resuming " BOLD "%s (%d" RESET " bytes) transfer has started...\n", nameOfCrashedFile(), downloading);
     fflush(stdout);
     while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
     {
