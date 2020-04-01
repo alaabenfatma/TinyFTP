@@ -54,23 +54,17 @@ void c_get(char *query)
     strcpy(filename, "downloads/");
 
     strcat(filename, fileBaseName(getFirstArgument(query)));
-    //remove(filename);
-
     gettimeofday(&start, NULL);
     FILE *f;
     f = fopen(filename, "wb");
     size_t chunk = 0;
-    while (original_size!= downloading)
+    while (original_size != downloading)
     {
-            rio_readnb(&rio, contents, buffSize);
-
-            rio_readnb(&rio, &chunk, sizeof(long));
-            fwrite(contents, 1, chunk, f);
-
-            rio_readnb(&rio, &downloading, sizeof(long));
-            printProgress("Downloading", downloading, original_size);
-        
-        
+        rio_readnb(&rio, contents, buffSize);
+        rio_readnb(&rio, &chunk, sizeof(long));
+        fwrite(contents, 1, chunk, f);
+        rio_readnb(&rio, &downloading, sizeof(long));
+        printProgress("Downloading", downloading, original_size);
     }
     fflush(f);
     fclose(f);
