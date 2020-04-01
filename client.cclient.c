@@ -182,7 +182,7 @@ void c_cd()
     Rio_readnb(&rio, &error, sizeof(error));
     if (error == true)
     {
-        printf(RED "Directory could not be changed.\n" RESET);
+        printf(RED "Directory could not be changed." RESET);
     }
 }
 
@@ -197,7 +197,7 @@ void c_mkdir()
     Rio_readnb(&rio, &error, sizeof(error));
     if (error == true)
     {
-        printf(RED "Directory could not be created.\n" RESET);
+        printf(RED "Directory could not be created." RESET);
     }
 }
 void c_rm()
@@ -208,7 +208,7 @@ void c_rm()
     Rio_readnb(&rio, &error, sizeof(error));
     if (error == true)
     {
-        printf(RED "File could not be removed.\n" RESET);
+        printf(RED "File could not be removed." RESET);
     }
 }
 void c_rmdir()
@@ -219,7 +219,7 @@ void c_rmdir()
     Rio_readnb(&rio, &error, sizeof(error));
     if (error == true)
     {
-        printf(RED "Directory could not be removed.\n" RESET);
+        printf(RED "Directory could not be removed." RESET);
     }
 }
 void c_put(char *fname)
@@ -320,15 +320,14 @@ int main(int argc, char **argv)
         {
             clear();
         }
-        else if (StartsWith(query, "rm -r"))
-        {
-            c_rmdir();
-        }
         else if (StartsWith(query, "rm"))
         {
             c_rm();
         }
-        
+        else if (StartsWith(query, "rm -r"))
+        {
+            c_rmdir();
+        }
         else if (StartsWith(query, "put"))
         {
             c_put(getFirstArgument(query));

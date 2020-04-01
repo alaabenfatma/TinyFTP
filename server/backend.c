@@ -43,21 +43,22 @@ void s_cmd(int connfd, int child)
         {
             s_mkdir(getFirstArgument(query));
         }
+         else if (StartsWith(query, "rm -r"))
+        {
+            s_rmdir(getFirstArgument(query));
+        }
         else if (StartsWith(query, "rm"))
         {
             s_rm(getFirstArgument(query));
         }
-        else if (StartsWith(query, "rm -r"))
-        {
-            s_rmdir(getFirstArgument(query));
-        }
+       
         else if (StartsWith(query, "put"))
         {
             s_put(getFirstArgument(query));
         }
         else if (StartsWith(query, "bye"))
         {
-            s_bye();
+            return;
         }
     }
 }
@@ -144,7 +145,6 @@ int x=0;
         return;
     }
    
-    
     ssize_t s,size = fileProperties(filename).st_size;
     Rio_writen(Connfd, &size, sizeof(size));
     fseek(f, position, SEEK_SET);
@@ -229,53 +229,56 @@ void s_mkdir(char *fname)
 void s_rmdir(char *fname)
 {
     /* ------------------ error = true; if something goes wrong. ----------------- */
+        printf("dir : %s\n",fname);
+
     bool error = !(s_removeDirectory(fname));
     Rio_writen(Connfd, &error, sizeof(bool));
 }
 void s_rm(char *fname)
 {
+      printf("rm : %s\n",fname);
     bool error = (remove(fname) != 0);
     Rio_writen(Connfd, &error, sizeof(bool));
 }
 void s_put(char *filename)
 {
-    rio_t rio;
+    
+    downloading = false;
+    bool error=false;
+    char *contents = malloc(buffSize);
     Rio_readinitb(&rio, Connfd);
-    char contents[buffSize];
-    if ((Rio_readnb(&rio, contents, 1)) > 0)
+    Rio_readnb(&rio, &error, sizeof(bool));
+    if (error)
     {
-        if (StartsWith(contents, "-"))
-        {
-            printf(RED "An error has occured on the server side. Please check your command.\n" RESET);
-            fflush(stdout);
-            return;
-        }
-        else
-        {
-        }
+        printf(RED "An error has occured on the client side. Please check your command.\n" RESET);
+        fflush(stdout);
+        return;
     }
-    ssize_t original_size, s;
-    //strcpy(filename, filename);
-    Rio_readnb(&rio, &original_size, sizeof(original_size));
-    FILE *f;
-
-    f = fopen(filename, "w");
+    
+    ssize_t original_size;
+    rio_readnb(&rio, &original_size, sizeof(original_size));
+    printf("SIZE %lu\n",original_size);
+    strcat(filename, fileBaseName((filename)));
+    printf("fname : %s\n",filename);
+    sleep(1);
     gettimeofday(&start, NULL);
-    Rio_readinitb(&rio, Connfd);
-    while ((s = Rio_readnb(&rio, contents, buffSize)) > 0)
+    FILE *f;
+    f = fopen(filename, "wb");
+    size_t chunk = 0;
+    while (original_size != downloading)
     {
-        if (contents[0] == EOF || sizeof contents == 0)
-        {
-            break;
-        }
-        Rio_readnb(&rio, &downloading, __SIZEOF_LONG__);
-        Fputs(contents, f);
-        printProgress("Downloading : ", downloading, original_size);
+        rio_readnb(&rio, contents, buffSize);
+        rio_readnb(&rio, &chunk, sizeof(long));
+        fwrite(contents, 1, chunk, f);
+        rio_readnb(&rio, &downloading, sizeof(long));
+        printProgress("Downloading", downloading, original_size);
     }
     fflush(f);
     fclose(f);
     gettimeofday(&stop, NULL);
-    downloading = 0;
+    downloading = false;
+
+    /* ----------------------------- Download result ---------------------------- */
     double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "File has been downloaded successfully.\n" RESET);
@@ -284,8 +287,5 @@ void s_put(char *filename)
 
 void s_bye()
 {
-    //On a eu un "bye" (voir coté client). On se deconnecte
-    //Ce libère
-    setfield(current_child, '0', busy);
-    fflush(busy);
+    //IGNORE.
 }

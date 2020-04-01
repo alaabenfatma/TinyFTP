@@ -72,6 +72,7 @@ char *getFirstArgument(char cmd[])
         for (i = 6; i < strlen(cmd) - 1; i++)
         {
             argument[j] = cmd[i];
+            argument[j+1] = '\0';
             j++;
         }
         return argument;
@@ -133,10 +134,8 @@ void clear()
 /* -------------------------------------------------------------------------- */
 bool s_removeDirectory(char *fname)
 {
-    if (fname[strlen(fname) - 2] != '/')
-    {
-        strcat(fname, "/");
-    }
+    printf("root : %s\n",fname);
+    
     DIR *dir;
     struct dirent *current;
     char file_to_delete[1024];
@@ -169,13 +168,9 @@ bool s_removeDirectory(char *fname)
 /* -------------------------------------------------------------------------- */
 /*                           Get filename from path                           */
 /* -------------------------------------------------------------------------- */
-char *fileBaseName(char const *path)
+char *fileBaseName(char *path)
 {
-    char *s = strrchr(path, '/');
-    if (!s)
-        return strdup(path);
-    else
-        return strdup(s + 1);
+    return basename(path);
 }
 
 /* -------------------------------------------------------------------------- */

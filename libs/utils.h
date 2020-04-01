@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <crypt.h>
+#include <libgen.h>
 #include "csapp.h"
 
 /* -------------------------------------------------------------------------- */
@@ -62,7 +63,7 @@ char *nameOfCrashedFile();
 long sizeOfCrashedFile();
 struct stat fileProperties(char *filename);
 int is_file(char *path);
-char *fileBaseName(char const *path);
+char *fileBaseName(char  *path);
 char *currentTime();
 bool isValidFD(int fd);
 /* -------------------------------------------------------------------------- */
