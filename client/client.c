@@ -11,9 +11,10 @@ char username[messageSize];
 bool crashing = false;
 void handler(int s)
 {
-    usleep(60000);
+    
     crashing = true;
     printf(MAGENTA BOLD "\nProgram is closing.\n" RESET);
+    usleep(70000);
     if (downloading != false)
     {
         ssize_t size = fileProperties(filename).st_size;
@@ -268,6 +269,7 @@ void c_bye(bool forced)
 {
     exit(0);
 }
+
 int main(int argc, char **argv)
 {
 

@@ -19,12 +19,11 @@ void s_cmd(int connfd, int child)
     while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
         //Remove the line that indicates the number of connected clients.
-        
-        
+
         Rio_readnb(&rio, &username, messageSize);
         Connfd = runTimeCheck(connfd, "server");
-        printf("["CYAN"%s"RESET"]" YELLOW " %s" RESET "at %s", username, query, currentTime());
-        
+        printf("[" CYAN "%s" RESET "]" YELLOW " %s" RESET "at %s", username, query, currentTime());
+
         if (strcmp(username, "Anonymous") != 0)
         {
             clientLoggedIn = true;
@@ -77,10 +76,8 @@ void s_cmd(int connfd, int child)
         {
             return;
         }
-        
     }
-    printf("[%s] has disconnected.\n",username);
-    
+    printf("[%s] has disconnected.\n", username);
 }
 
 void s_get(char *filename)
@@ -109,7 +106,7 @@ void s_get(char *filename)
     while ((s = fread(buffer, 1, buffSize, f)) != 0)
     {
         position = ftell(f);
-        if (rio_writen(Connfd, buffer, buffSize) != buffSize)
+        if (rio_writen(Connfd, buffer, buffSize) != s && position != size)
         {
             printf(RED BOLD "An error has occured during the transfer.\n" RESET);
             fflush(stdout);
@@ -171,12 +168,17 @@ void s_resume()
 
     while ((s = fread(buffer, 1, buffSize, f)) != 0)
     {
+        if (clientCrashing == true)
+        {
+            return;
+        }
         position = ftell(f);
-        if (rio_writen(Connfd, buffer, buffSize) != buffSize)
+        if (rio_writen(Connfd, buffer, buffSize) != s && position != size)
         {
             printf(RED BOLD "An error has occured during the transfer.\n" RESET);
             fflush(stdout);
             clientCrashing = true;
+            
             return;
         };
         rio_writen(Connfd, &s, sizeof(long));

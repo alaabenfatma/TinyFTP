@@ -40,7 +40,8 @@ int main(int argc, char **argv)
     master = getpid();
 
     //AJOUTE : Gestion des clients par les NPROC fils
-    int i; for( i = 0; i < NPROC; i++)
+    int i;
+    for (i = 0; i < NPROC; i++)
     {
         if (getpid() == master)
         {
@@ -57,6 +58,9 @@ int main(int argc, char **argv)
         }
     }
 
+    /* --------- Create the accounts database if does not exist already. -------- */
+
+    initDB();
     while (1)
     {
         int i;
@@ -67,7 +71,7 @@ int main(int argc, char **argv)
             tourniquet++;
             int pid_elu = child_processes[elu];
             //On va écrire elu et son pid au fils
-             for( i = 0; i < NPROC; i++)
+            for (i = 0; i < NPROC; i++)
             {
                 write(pip1[1], &elu, sizeof(elu));
                 write(pip2[1], &pid_elu, sizeof(pid_elu));
@@ -78,7 +82,7 @@ int main(int argc, char **argv)
             //On cherche un esclave libre (hahaha)
             fflush(busy);
             elu = -1;
-             for( i = 0; i < NPROC; i++)
+            for (i = 0; i < NPROC; i++)
             {
                 bool occupied = getfield(i, busy);
                 if (occupied == false)
@@ -105,7 +109,6 @@ int main(int argc, char **argv)
         }
         else
         {
-            
 
             int elu_fils; //On va lire "elu" du père avec un pipe.
             int pid_elu_fils;
@@ -145,7 +148,7 @@ int main(int argc, char **argv)
             }
         }
     }
-     for( i = 0; i < NPROC; i++)
+    for (i = 0; i < NPROC; i++)
     {
         Wait(NULL);
     }

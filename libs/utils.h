@@ -111,8 +111,9 @@ void c_bye(bool forced);
 /* -------------------------------------------------------------------------- */
 /*                         Accounts managing functions                        */
 /* -------------------------------------------------------------------------- */
+bool initDB();
 char *readpassword();
-bool createAccount(char *username, char *password);
+bool createAccount();
 bool loginAccount(char *username, char *password);
 char **getAccountInfo();
 

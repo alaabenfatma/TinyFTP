@@ -189,6 +189,24 @@ struct stat fileProperties(char *filename)
     return st;
 }
 
+bool initDB()
+{
+    char *fname = malloc(messageSize);
+    strcpy(fname, "~/.TinyFTP/.accounts.db");
+    FILE *f = fopen(fname, "w");
+    if (f == NULL)
+    {
+        mkdir("~/.TinyFTP", 0700);
+        f = fopen(fname, "w");
+        if (f == NULL)
+        {
+            printf(RED BOLD "Server cannot be used because the accounts dataset is not available.\n" RESET);
+            return false;
+            exit(1);
+        }
+    }
+    return true;
+}
 /* -------------------------------------------------------------------------- */
 /*                           Securely read password                           */
 /* -------------------------------------------------------------------------- */
