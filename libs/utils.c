@@ -33,15 +33,17 @@ long sizeOfCrashedFile()
 /* -------------------------------------------------------------------------- */
 /*    A cool progress bar to help us keep track of the transfer operations.   */
 /* -------------------------------------------------------------------------- */
+
 void printProgress(char *msg, ssize_t downloaded, ssize_t size)
 {
     int _percentage = (int)percentage((double)size, (double)downloaded);
     printf("%s : %ld/%ld (%d%%)", msg, downloaded, size, _percentage);
     printf("\r");
     printf(RESET);
-    if(_percentage==100){
+    if (_percentage == 100)
+    {
         //remove console line after download is finished.
-       // printf("\r%c[2K",27);
+        clearLine();
     }
     fflush(stdout);
 }
@@ -65,14 +67,14 @@ bool StartsWith(const char *a, const char *b)
 /* -------------------------------------------------------------------------- */
 char *getFirstArgument(char cmd[])
 {
-    char *argument = malloc(strlen(cmd)+1);
+    char *argument = malloc(strlen(cmd) + 1);
     int i, j = 0;
     if (StartsWith(cmd, "rm -r"))
     {
         for (i = 6; i < strlen(cmd) - 1; i++)
         {
             argument[j] = cmd[i];
-            argument[j+1] = '\0';
+            argument[j + 1] = '\0';
             j++;
         }
         return argument;
@@ -88,7 +90,7 @@ char *getFirstArgument(char cmd[])
     for (i = i + 1; i < strlen(cmd) - 1; i++)
     {
         argument[j] = cmd[i];
-        argument[j+1] = '\0';
+        argument[j + 1] = '\0';
         j++;
     }
 
@@ -127,6 +129,10 @@ void clear()
     const char *CLEAR_SCREEN_ANSI = "\n\e[1;1H\e[2J";
     write(STDOUT_FILENO, CLEAR_SCREEN_ANSI, 12);
 }
+void clearLine()
+{
+    printf("\r%c[2K", 27);
+}
 
 /* -------------------------------------------------------------------------- */
 /*    Returns true if directory gets completely deleted. false, otherwose.    */
@@ -134,8 +140,8 @@ void clear()
 /* -------------------------------------------------------------------------- */
 bool s_removeDirectory(char *fname)
 {
-    printf("root : %s\n",fname);
-    
+    printf("root : %s\n", fname);
+
     DIR *dir;
     struct dirent *current;
     char file_to_delete[1024];
@@ -197,7 +203,7 @@ char *readpassword()
 /* -------------------------------------------------------------------------- */
 void welcome()
 {
-    printf("The server is "BOLD"read-only"RESET". Please login if you want to make any modifications.\n");
+    printf("The server is " BOLD "read-only" RESET ". Please login if you want to make any modifications.\n");
 }
 
 /* -------------------------------------------------------------------------- */
@@ -247,7 +253,7 @@ FILE *initfield()
 {
     FILE *stream = fopen("busy.log", "w+");
     int i;
-    for ( i = 0; i < NPROC - 1; i++)
+    for (i = 0; i < NPROC - 1; i++)
     {
         fputc('0', stream);
         fputc(';', stream);
@@ -354,7 +360,7 @@ int establishConnection(char *ip, int port, int timeout)
         if (elu == -1)
         {
             //Aucun serveur n'est libre...
-            printf(RED"The server is busy. Try again later.\n"RESET);
+            printf(RED "The server is busy. Try again later.\n" RESET);
             exit(0);
         }
         //On se connecte
@@ -376,7 +382,7 @@ int establishConnection(char *ip, int port, int timeout)
     return clientfd;
 }
 
-int runTimeCheck(int fd,char *arg)
+int runTimeCheck(int fd, char *arg)
 {
 
     /* -------------------- Check if "downloads" folder exists -------------------- */
@@ -408,12 +414,33 @@ void help()
 /* ---------------------- Get current time as a string ---------------------- */
 char *currentTime()
 {
-    time_t rawtime; 
+    time_t rawtime;
     time(&rawtime);
     return asctime(localtime(&rawtime));
 }
 
 /* -------------------------- Check if fd is valid -------------------------- */
-bool isValidFD(int fd){
+bool isValidFD(int fd)
+{
     return fcntl(fd, F_GETFD) != -1 || errno != EBADF;
+}
+
+/* -------------- Count the number of free slots in the server. ------------- */
+int busyChildren()
+{
+    int i, c = 0;
+    for (i = 0; i < NPROC; i++)
+    {
+        bool occupied = getfield(i, busy);
+        if (occupied != false)
+        {
+            c++;
+        }
+    }
+    return c;
+}
+void connectedClients()
+{
+    printf(GREEN INVERTED "Connected clients : %d/%d\n" RESET, busyChildren(), NPROC);
+    fflush(stdout);
 }

@@ -133,6 +133,7 @@ int main(int argc, char **argv)
 
                 //Initialisation du repertoire courant:
                 current_directory = opendir(".");
+                connectedClients();
                 s_cmd(connfd, elu_fils);
                 Close(listenfd2);
                 Close(connfd);
@@ -140,6 +141,7 @@ int main(int argc, char **argv)
                 //Ce libère
                 setfield(elu_fils, '0', busy);
                 fflush(busy);
+                connectedClients();
             }
         }
     }

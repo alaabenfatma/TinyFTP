@@ -43,6 +43,7 @@ double percentage(double size, double downloaded);
 /* -------------------------------------------------------------------------- */
 
 #define BOLD "\e[1m"
+#define INVERTED "\e[7m"
 #define RED "\x1B[31m"
 #define GREEN "\x1B[32m"
 #define YELLOW "\x1B[33m"
@@ -66,6 +67,8 @@ int is_file(char *path);
 char *fileBaseName(char  *path);
 char *currentTime();
 bool isValidFD(int fd);
+void clear();
+void clearLine();
 /* -------------------------------------------------------------------------- */
 /*                            Server-side funtions                            */
 /* -------------------------------------------------------------------------- */
@@ -84,11 +87,16 @@ bool s_removeDirectory(char *fname);
 void s_bye();
 
 /* -------------------------------------------------------------------------- */
+/*                             Server-side helpers                            */
+/* -------------------------------------------------------------------------- */
+int busyChildren();
+void connectedClients();
+/* -------------------------------------------------------------------------- */
 /*                            Client-side funtions                            */
 /* -------------------------------------------------------------------------- */
 void welcome();
 void help();
-void clear();
+
 void c_get(char *msg);
 void c_resume();
 void c_ls();
@@ -120,3 +128,4 @@ int getfield(int el, FILE *p);
 /* -------------------------------------------------------------------------- */
 int establishConnection(char *ip, int port, int timeout);
 int runTimeCheck(int fd,char *arg);
+

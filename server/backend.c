@@ -10,7 +10,6 @@ bool clientLoggedIn = false;
 char username[messageSize];
 void s_cmd(int connfd, int child)
 {
-
     Connfd = connfd;
     current_child = child;
     size_t n;
@@ -19,10 +18,13 @@ void s_cmd(int connfd, int child)
     Rio_readinitb(&rio, Connfd);
     while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
+        //Remove the line that indicates the number of connected clients.
+        
+        
         Rio_readnb(&rio, &username, messageSize);
         Connfd = runTimeCheck(connfd, "server");
-        printf("[%s]" YELLOW " %s" RESET "at %s", username, query, currentTime());
-
+        printf("["CYAN"%s"RESET"]" YELLOW " %s" RESET "at %s", username, query, currentTime());
+        
         if (strcmp(username, "Anonymous") != 0)
         {
             clientLoggedIn = true;
@@ -66,7 +68,6 @@ void s_cmd(int connfd, int child)
             if (clientLoggedIn)
                 s_rm(getFirstArgument(query));
         }
-
         else if (StartsWith(query, "put "))
         {
             if (clientLoggedIn)
@@ -76,7 +77,10 @@ void s_cmd(int connfd, int child)
         {
             return;
         }
+        
     }
+    printf("[%s] has disconnected.\n",username);
+    
 }
 
 void s_get(char *filename)
