@@ -7,12 +7,13 @@ char filename[FILENAME_MAX];
 char *host;
 rio_t rio;
 bool loggedIn = false;
+char username[messageSize];
 bool crashing = false;
 void handler(int s)
 {
     usleep(60000);
     crashing = true;
-    printf(MAGENTA BOLD"\nProgram is closing.\n"RESET);
+    printf(MAGENTA BOLD "\nProgram is closing.\n" RESET);
     if (downloading != false)
     {
         ssize_t size = fileProperties(filename).st_size;
@@ -102,7 +103,7 @@ void c_resume()
         fflush(stdout);
         return;
     }
-    
+
     strcpy(filename, "downloads/");
     strcat(filename, nameOfCrashedFile());
     f = fopen(filename, "a");
@@ -226,31 +227,32 @@ void c_put(char *fname)
 {
     FILE *f;
     char buffer[buffSize];
-    char msg[buffSize];
-    strcpy(msg,"+");
+    char msg[messageSize];
+    strcpy(msg, "+");
     f = fopen(fname, "rb");
-    if (f == NULL || strstr(fname,"/")!=NULL)
+    if (f == NULL || strstr(fname, "/") != NULL)
     {
-    strcpy(msg,"-");
+        strcpy(msg, "-");
     }
     usleep(30000);
-    Rio_writen(clientfd,msg, buffSize);
-    if (strstr(msg,"-")!=NULL)
+    Rio_writen(clientfd, msg, messageSize);
+    if (strstr(msg, "-") != NULL)
     {
-        printf(RED "%s does not exist or its names contains /.\n"RESET,fname);
+        printf(RED "%s does not exist or its names contains /.\n" RESET, fname);
         return;
     }
     Rio_readinitb(&rio, clientfd);
     /* ------------------------ Send file size to client ------------------------ */
-    ssize_t s,size = fileProperties(fname).st_size;
+    ssize_t s, size = fileProperties(fname).st_size;
     Rio_writen(clientfd, &size, sizeof(ssize_t));
     long position;
-    printf("Send %s (%lu bytes)",fname,size);
-    while ((s = fread(buffer, 1, buffSize, f)) != 0) {
+    printf("Send %s (%lu bytes)", fname, size);
+    while ((s = fread(buffer, 1, buffSize, f)) != 0)
+    {
         position = ftell(f);
         if (rio_writen(clientfd, buffer, buffSize) != buffSize)
         {
-            printf(RED BOLD"An error has occured during the transfer.\n" RESET);
+            printf(RED BOLD "An error has occured during the transfer.\n" RESET);
             fflush(stdout);
             return;
         };
@@ -259,7 +261,8 @@ void c_put(char *fname)
         printProgress("Uploading : ", position, size);
     }
     fclose(f);
-    
+    printf(GREEN BOLD "File (%s) has been uploaded successfully.\n" RESET, fname);
+    fflush(stdout);
 }
 void c_bye(bool forced)
 {
@@ -285,6 +288,7 @@ int main(int argc, char **argv)
     char *query = malloc(MAXLINE);
     Rio_readinitb(&rio, clientfd);
     int clientX = clientfd;
+    strcpy(username,"Anonymous");
     while (1)
     {
         clientfd = runTimeCheck(clientX, "client");
@@ -294,7 +298,8 @@ int main(int argc, char **argv)
             break;
         }
         Rio_writen(clientfd, query, messageSize);
-        if (StartsWith(query, "get"))
+        Rio_writen(clientfd,username,messageSize);
+        if (StartsWith(query, "get "))
         {
             c_get(query);
         }
@@ -310,30 +315,50 @@ int main(int argc, char **argv)
         {
             c_pwd();
         }
-        else if (StartsWith(query, "cd"))
+        else if (StartsWith(query, "cd "))
         {
             c_cd();
         }
-        else if (StartsWith(query, "mkdir"))
+        else if (StartsWith(query, "mkdir "))
         {
-            c_mkdir();
+            if (loggedIn)
+                c_mkdir();
+            else
+            {
+                printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
+            }
         }
         else if (StartsWith(query, "clear"))
         {
             clear();
         }
-        else if (StartsWith(query, "rm -r"))
+        else if (StartsWith(query, "rm -r "))
         {
-            c_rmdir();
+            if (loggedIn)
+                c_rmdir();
+            else
+            {
+                printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
+            }
         }
-        else if (StartsWith(query, "rm"))
+        else if (StartsWith(query, "rm "))
         {
-            c_rm();
+            if (loggedIn)
+                c_rm();
+            else
+            {
+                printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
+            }
         }
-        
-        else if (StartsWith(query, "put"))
+
+        else if (StartsWith(query, "put "))
         {
-            c_put(getFirstArgument(query));
+            if (loggedIn)
+                c_put(getFirstArgument(query));
+            else
+            {
+                printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
+            }
         }
         else if (StartsWith(query, "help"))
         {
@@ -348,7 +373,7 @@ int main(int argc, char **argv)
             if (strlen(query) > 0)
                 printf(MAGENTA "This command is unknown.\n" RESET);
         }
-        fflush(stdin);
+        fflush(stdout);
     }
     Close(clientfd);
     exit(0);
