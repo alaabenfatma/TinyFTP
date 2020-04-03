@@ -12,10 +12,10 @@ char username[messageSize];
 bool crashing = false;
 void handler(int s)
 {
-    
+
     sleep(1);
     printf(BOLD "\nProgram is closing.\n" RESET);
-    
+
     crashing = true;
     if (downloading != false)
     {
@@ -25,10 +25,9 @@ void handler(int s)
         FILE *tmp;
         tmp = fopen("crash.log", "w");
         strcpy(filename, strremove(filename, "downloads/"));
-        
+
         fprintf(tmp, "%s,%d", filename_path, downloading);
         fclose(tmp);
-        
     }
 
     exit(0);
@@ -52,7 +51,7 @@ void c_get(char *query)
 
     ssize_t original_size;
     rio_readnb(&rio, &original_size, sizeof(original_size));
-    strcpy(filename_path,getFirstArgument(query));
+    strcpy(filename_path, getFirstArgument(query));
     strcpy(filename, "downloads/");
     strcat(filename, fileBaseName(getFirstArgument(query)));
     gettimeofday(&start, NULL);
@@ -111,12 +110,13 @@ void c_resume()
 
     strcpy(filename, "downloads/");
     char *fname = nameOfCrashedFile();
-    strcpy(filename_path,fname);
-    if(strstr(fname,"/")!=NULL){
-        strcpy(fname,fileBaseName(fname));
+    strcpy(filename_path, fname);
+    if (strstr(fname, "/") != NULL)
+    {
+        strcpy(fname, fileBaseName(fname));
     }
     strcat(filename, fname);
-    
+
     f = fopen(filename, "a");
     gettimeofday(&start, NULL);
     downloading = sizeOfCrashedFile(filename);
@@ -279,14 +279,36 @@ void c_bye(bool forced)
 {
     exit(0);
 }
-bool c_createAccount(){
+void c_createAccount()
+{
     account acc = getAccountInfo();
-    Rio_writen(clientfd,&acc,sizeof(acc));
+    Rio_writen(clientfd, &acc, sizeof(acc));
     char response[messageSize];
-    Rio_readinitb(&rio,clientfd);
-    Rio_readnb(&rio,&response,messageSize);
-    printf("%s\n",response);
-    return true;
+    Rio_readinitb(&rio, clientfd);
+    Rio_readnb(&rio, &response, messageSize);
+    printf("%s\n", response);
+}
+void c_loginAccount()
+{
+    account acc = getAccountInfo();
+    Rio_writen(clientfd, &acc, sizeof(acc));
+    char response[messageSize];
+    Rio_readinitb(&rio, clientfd);
+    Rio_readnb(&rio, &response, messageSize);
+    if (StartsWith(response, "+"))
+    {
+        loggedIn = true;
+        strcpy(username, acc.username);
+        printf(GREEN "Hello, " BOLD "%s!\n" RESET, acc.username);
+    }
+    else{
+        printf("Failed to login, try again.\n");
+    }
+}
+void disconnect()
+{
+    loggedIn = false;
+    strcpy(username, "Anonymous");
 }
 int main(int argc, char **argv)
 {
@@ -308,19 +330,19 @@ int main(int argc, char **argv)
     char query[messageSize];
     Rio_readinitb(&rio, clientfd);
     int clientX = clientfd;
-    strcpy(username,"Anonymous");
-    Rio_writen(clientfd,username,messageSize);
+    strcpy(username, "Anonymous");
+    Rio_writen(clientfd, username, messageSize);
     while (1)
     {
         clientfd = runTimeCheck(clientX, "client");
-        printf("[%d]ftp>", clientfd);
+        printf(BOLD"ftp>"RESET);
         if (Fgets(query, sizeof(query), stdin) == NULL)
         {
             break;
         }
         strcpy(query, parse_fgets(query));
         Rio_writen(clientfd, query, messageSize);
-        Rio_writen(clientfd,username,messageSize);
+        Rio_writen(clientfd, username, messageSize);
         if (StartsWith(query, "get "))
         {
             c_get(query);
@@ -353,6 +375,15 @@ int main(int argc, char **argv)
         else if (!strcmp(query, "register"))
         {
             c_createAccount();
+        }
+        else if (!strcmp(query, "login"))
+        {
+            if(loggedIn){
+                printf("%s, you are already logged into your account.\n",username);
+                
+            }
+            else
+            c_loginAccount();
         }
         else if (!strcmp(query, "clear"))
         {
@@ -390,18 +421,22 @@ int main(int argc, char **argv)
         {
             help();
         }
-        else if (strcmp(query, "bye")==0)
+        else if (strcmp(query, "disconnect") == 0)
+        {
+            disconnect();
+        }
+        else if (strcmp(query, "bye") == 0)
         {
             c_bye(false);
         }
-        else if (strlen(query)==1)
+        else if (strlen(query) == 1)
         {
             continue;
         }
         else
         {
             if (strlen(query) > 0)
-                printf(MAGENTA BOLD "ERROR :" RESET" Command could not be executed. Try again.\n");
+                printf(MAGENTA BOLD "ERROR :" RESET " Command could not be executed. Try again.\n");
         }
         fflush(stdout);
     }

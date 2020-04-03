@@ -1,21 +1,23 @@
 #include "../libs/utils.h"
+int master = 0;
 
 void handler(int signal)
 {
-    //Handler de Ctrl-C
-    Kill(0, SIGKILL);
+    if (getpid() == master)
+        printf(BOLD MAGENTA "THE SERVER IS SELF-DESTRUCTING\n" RESET);
+    remove("busy.log");
     exit(0);
 }
 
 int main(int argc, char **argv)
 {
+    Signal(SIGINT, handler);
     int listenfd, connfd, port;
     socklen_t clientlen;
     struct sockaddr_in clientaddr;
     char client_ip_string[INET_ADDRSTRLEN];
     char client_hostname[256];
     int elu = 0;
-    int master = 0;
     strcpy(global_path, ".");
     //paramètres de connection
     port = 2121;
@@ -34,10 +36,12 @@ int main(int argc, char **argv)
 
     pid_t *child_processes; //All child processes
     child_processes = malloc(NPROC * sizeof(pid_t));
-
+    
     busy = initfield(); //Fichier qui indique un un serveur est occupé ou pas
-
+    
     master = getpid();
+    if(master == getpid())
+        initDB();
 
     //AJOUTE : Gestion des clients par les NPROC fils
     int i;
@@ -56,18 +60,16 @@ int main(int argc, char **argv)
                 child_processes[i] = pid;
             }
         }
-        
     }
 
     /* --------- Create the accounts database if does not exist already. -------- */
 
-    
     while (1)
     {
         int i;
         if (master == getpid()) //père
         {
-            
+
             //On utilise le modulo pour répartir de manière circulaire
             elu = (tourniquet) % NPROC;
             tourniquet++;
@@ -146,14 +148,10 @@ int main(int argc, char **argv)
                 //Ce libère
                 setfield(elu_fils, '0', busy);
                 fflush(busy);
-                
+
                 connectedClients();
             }
         }
     }
-    for (i = 0; i < NPROC; i++)
-    {
-        Wait(NULL);
-    }
-    exit(0);
+    return 0;
 }

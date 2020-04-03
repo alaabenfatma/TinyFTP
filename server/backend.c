@@ -78,9 +78,13 @@ void s_cmd(int connfd, int child)
         {
             return;
         }
-        else if (StartsWith(query, "register"))
+        else if (!strcmp(query, "register"))
         {
             s_createAccount();
+        }
+        else if (!strcmp(query, "login"))
+        {
+            s_loginAccount();
         }
     }
     printf("[" CYAN "%s" RESET "] has disconnected.\n", username);
@@ -316,42 +320,83 @@ void s_bye()
     //IGNORE.
 }
 
-bool s_createAccount()
+void s_createAccount()
 {
-    initDB();
+
     account acc;
     rio_readinitb(&rio, Connfd);
     rio_readnb(&rio, &acc, sizeof(acc));
     char response[messageSize];
-    
+
     FILE *db = fopen(ftpAccountsPath, "a+");
     if (db == NULL)
     {
         strcpy(response, "Account could not be created. Server-side error.");
-       printf("%s\n",response);
+        printf("%s\n", response);
         fclose(db);
         rio_writen(Connfd, &response, messageSize);
-        return false;
+        return;
     }
     //Check if name already exists.
     char name[256];
-    while ( !feof(db) )
-    {   fscanf(db, "%s", name);
-        strcpy(name, strtok(name,","));
+    while (!feof(db))
+    {
+        fscanf(db, "%s", name);
+        strcpy(name, strtok(name, "|"));
         fflush(stdout);
         if (!strcmp(name, acc.username))
         {
-            strcpy(response, RED"username already exists. Try again."RESET);
+            strcpy(response, RED "username already exists. Try again." RESET);
             fclose(db);
             rio_writen(Connfd, &response, messageSize);
-            return false;
+            return;
         }
     }
-    fprintf(db, "%s,%s,%s", acc.username, acc.password, currentTime());
-    strcpy(response, GREEN"Your account has been created :"RESET);
-    strcat(response,acc.username);
+    fprintf(db, "%s|%s|%s", acc.username, acc.password, currentTime());
+    strcpy(response, GREEN "Your account has been created.");
+    strcat(response, RESET "\nNow you can log into your account.");
     printf("The account has been created.\n");
     rio_writen(Connfd, &response, messageSize);
     fclose(db);
-    return true;
+    return;
+}
+void s_loginAccount()
+{
+    printf("The client is inserting his data...\n");
+    account acc;
+    rio_readinitb(&rio, Connfd);
+    rio_readnb(&rio, &acc, sizeof(acc));
+    char response[messageSize];
+    strcpy(response, "-");
+    FILE *db = fopen(ftpAccountsPath, "r+");
+    if (db == NULL)
+    {
+        printf(RED "%s\n" RESET, response);
+        fclose(db);
+        rio_writen(Connfd, &response, messageSize);
+        return;
+    }
+
+    //check matching account data.
+    char name[256], pwd[256];
+    while(fgets(name, 256, db)!=false) {
+        fscanf(db, "%s", name);
+        strcpy(name, strtok(name, "|"));
+        strcpy(pwd, strtok(NULL, "|"));
+        if (!strcmp(name, acc.username))
+        {
+            if (!strcmp(pwd, acc.password))
+            {
+                strcpy(response, "+");
+                fclose(db);
+                rio_writen(Connfd, &response, messageSize);
+                printf("[SERVER] User, %s, has logged in.\n",name);
+                return;
+            }
+        }
+    }
+
+    printf("Someone has tried to log in!\n");
+    rio_writen(Connfd, &response, messageSize);
+    fclose(db);
 }

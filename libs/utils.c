@@ -117,13 +117,13 @@ char *strremove(char *str, const char *sub)
 /* -------------------------------------------------------------------------- */
 /*                                 Parse query                                */
 /* -------------------------------------------------------------------------- */
-char * parse_fgets(char cmd[])
+char *parse_fgets(char cmd[])
 {
     size_t len = strlen(cmd);
 
-    if(len > 0 && cmd[len - 1] == '\n')
+    if (len > 0 && cmd[len - 1] == '\n')
     {
-       cmd[len - 1] = '\0';
+        cmd[len - 1] = '\0';
     }
     return cmd;
 }
@@ -207,37 +207,46 @@ bool directoryExists(char *path)
     DIR *dir = opendir(path);
     return (dir != NULL);
 }
- char *homedir()
+char *homedir()
 {
-     char *dir = malloc(messageSize);
+    char *dir = malloc(messageSize);
 
     if ((dir = getenv("HOME")) == NULL)
     {
         dir = getpwuid(getuid())->pw_dir;
     }
-    strcat(dir,"/");
+    strcat(dir, "/");
     return dir;
 }
-bool initDB()
+void initDB()
 {
     
     char path[messageSize];
+    char temp[messageSize];
     strcpy(path, homedir());
 
-    strcat(path,ftpDB);
-    if(access( path, F_OK ) != -1){
-        strcpy(ftpAccountsPath,path);
-        printf("Accouts are contained in : %s\n",ftpAccountsPath);
-        return true;
-    }
-    strcpy(ftpAccountsPath,path);
-    printf("Accouts are contained in : %s\n",ftpAccountsPath);
+    strcat(path, ftpDB);
+    if (access(path, F_OK) != -1)
+    {
+        strcpy(ftpAccountsPath, path);
+        printf("Accouts are contained in : %s\n", ftpAccountsPath);
+        FILE *db = fopen(path, "r+");
+        if (fgets(temp, messageSize, db) == 0)
+        {
+            fprintf(db, "%s", "username|pwd|date\n");
+        }
+        fclose(db);
 
-    FILE *db  = fopen(path,"a");
-    fprintf(db,"%s","usrname,pwd,date\n");
+        return;
+    }
+    strcpy(ftpAccountsPath, path);
+    printf("Accouts are contained in : %s\n", ftpAccountsPath);
+
+    FILE *db = fopen(path, "w+");
+    fprintf(db, "%s", "username|pwd|date\n");
     fclose(db);
     fflush(stdout);
-    return true;
+    return;
 }
 /* -------------------------------------------------------------------------- */
 /*                           Securely read password                           */
@@ -263,13 +272,11 @@ account getAccountInfo()
 {
     account acc;
     printf("username : ");
-    Fgets(acc.username,messageSize,stdin);
-    strcpy(acc.username ,parse_fgets(acc.username));
-    strcpy(acc.password, readpassword());
+    Fgets(acc.username, messageSize, stdin);
+    strcpy(acc.username, parse_fgets(acc.username));
+    strcpy(acc.password, parse_fgets(readpassword()));
     return acc;
 }
-
-
 
 /* -------------------------------------------------------------------------- */
 /*                              Create a CSV file                             */
@@ -427,16 +434,16 @@ void help()
 {
     printf("These are all the possible commands\n");
     printf(BOLD "(*) All the commands that are in blue require you to log in.\n\n" RESET);
-    printf("login : login is used to log into an account");
-    printf("register : register command is used to create an account\n");
-    printf("get : get command is used to download a file from the FTP server\n");
-    printf("resume : resume command is used to resume a failed download\n");
-    printf("ls : ls command is used to list contents of a directory\n");
-    printf("pwd : pwd command displays the name of current working directory\n");
-    printf(BLUE "mkdir" RESET " : mkdir command is used to create a single directory\n");
-    printf(BLUE "rm" RESET " : rm is used to remove files or empty directories\n");
-    printf(BLUE "rm -r" RESET " : rm -r command is used to remove directories\n");
-    printf(BLUE "put" RESET " : put command is used to upload a file to the FTP server\n");
+    printf(BOLD "login " RESET ": login is used to log into an account\n");
+    printf(BOLD "register " RESET ": register command is used to create an account\n");
+    printf(BOLD "get " RESET ": get command is used to download a file from the FTP server\n");
+    printf(BOLD "resume " RESET ": resume command is used to resume a failed download\n");
+    printf(BOLD "ls " RESET ": ls command is used to list contents of a directory\n");
+    printf(BOLD "pwd " RESET ": pwd command displays the name of current working directory\n");
+    printf(BOLD BLUE "mkdir" RESET " : mkdir command is used to create a single directory\n");
+    printf(BOLD BLUE "rm" RESET " : rm is used to remove files or empty directories\n");
+    printf(BOLD BLUE "rm -r" RESET " : rm -r command is used to remove directories\n");
+    printf(BOLD BLUE "put" RESET " : put command is used to upload a file to the FTP server\n");
 }
 
 /* ---------------------- Get current time as a string ---------------------- */
@@ -476,9 +483,11 @@ void connectedClients()
 /* -------------------------------------------------------------------------- */
 /*         Returns - if the client is trying to access sensitive data.        */
 /* -------------------------------------------------------------------------- */
-char securityBreachAttempt(char *cmd){
-    if(strstr(cmd,".ftpAccounts.db")!=NULL || strstr(cmd,"busy.log")!=NULL){
-        printf(BOLD RED"WARNING :"RESET" Client has tried to access sensitive data!\n");
+char securityBreachAttempt(char *cmd)
+{
+    if (strstr(cmd, ".ftpAccounts.db") != NULL || strstr(cmd, "busy.log") != NULL)
+    {
+        printf(BOLD RED "WARNING :" RESET " Client has tried to access sensitive data!\n");
         fflush(stdout);
         return '-';
     }

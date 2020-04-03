@@ -79,8 +79,8 @@ void clearLine();
 /* -------------------------------------------------------------------------- */
 
 void s_cmd(int connfd,int child);
-bool s_createAccount();
-bool s_loginAccount();
+void s_createAccount();
+void s_loginAccount();
 void s_get(char *msg);
 void s_resume();
 void s_ls();
@@ -103,8 +103,8 @@ void connectedClients();
 /* -------------------------------------------------------------------------- */
 void welcome();
 void help();
-bool c_createAccount();
-bool c_loginAccount();
+void c_createAccount();
+void c_loginAccount();
 void c_get(char *msg);
 void c_resume();
 void c_ls();
@@ -115,12 +115,12 @@ void c_rm();
 void c_rmdir();
 void c_put(char *fname);
 void c_bye(bool forced);
-
+void disconnect();
 
 /* -------------------------------------------------------------------------- */
 /*                         Accounts managing functions                        */
 /* -------------------------------------------------------------------------- */
-bool initDB();
+void initDB();
 char *readpassword();
 typedef struct {
     char username[messageSize];
