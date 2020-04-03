@@ -9,6 +9,7 @@ rio_t rio;
 bool loggedIn = false;
 char username[messageSize];
 bool crashing = false;
+char global_query[messageSize];
 void handler(int s)
 {
     
@@ -24,7 +25,7 @@ void handler(int s)
         FILE *tmp;
         tmp = fopen("crash.log", "w");
         strcpy(filename, strremove(filename, "downloads/"));
-        fprintf(tmp, "%s,%d", filename, downloading);
+        fprintf(tmp, "%s,%d", getFirstArgument(global_query), downloading);
         fclose(tmp);
         
     }
@@ -109,7 +110,12 @@ void c_resume()
     }
 
     strcpy(filename, "downloads/");
-    strcat(filename, nameOfCrashedFile());
+    char *fname = nameOfCrashedFile();
+    if(strstr(fname,"/")!=NULL){
+        strcpy(fname,fileBaseName(fname));
+    }
+    strcat(filename, fname);
+    
     f = fopen(filename, "a");
     gettimeofday(&start, NULL);
     downloading = sizeOfCrashedFile(filename);
@@ -314,6 +320,7 @@ int main(int argc, char **argv)
             break;
         }
         strcpy(query, parse_fgets(query));
+        strcpy(global_query,query);
         Rio_writen(clientfd, query, messageSize);
         Rio_writen(clientfd,username,messageSize);
         if (StartsWith(query, "get "))
