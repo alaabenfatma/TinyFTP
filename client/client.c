@@ -313,7 +313,7 @@ int main(int argc, char **argv)
         {
             break;
         }
-        strcpy(query, parseQuery(query));
+        strcpy(query, parse_fgets(query));
         Rio_writen(clientfd, query, messageSize);
         Rio_writen(clientfd,username,messageSize);
         if (StartsWith(query, "get "))

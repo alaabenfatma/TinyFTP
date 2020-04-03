@@ -117,7 +117,7 @@ char *strremove(char *str, const char *sub)
 /* -------------------------------------------------------------------------- */
 /*                                 Parse query                                */
 /* -------------------------------------------------------------------------- */
-char * parseQuery(char cmd[])
+char * parse_fgets(char cmd[])
 {
     size_t len = strlen(cmd);
 
@@ -227,9 +227,12 @@ bool initDB()
     strcat(path,ftpDB);
     if(access( path, F_OK ) != -1){
         strcpy(ftpAccountsPath,path);
+        printf("Accouts are contained in : %s\n",ftpAccountsPath);
         return true;
     }
     strcpy(ftpAccountsPath,path);
+    printf("Accouts are contained in : %s\n",ftpAccountsPath);
+
     FILE *db  = fopen(path,"a");
     fprintf(db,"%s","usrname,pwd,date");
     fclose(db);
@@ -261,6 +264,7 @@ account getAccountInfo()
     account acc;
     printf("username : ");
     Fgets(acc.username,messageSize,stdin);
+    strcpy(acc.username ,parse_fgets(acc.username));
     strcpy(acc.password, readpassword());
     return acc;
 }

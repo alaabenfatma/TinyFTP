@@ -73,7 +73,7 @@ bool isValidFD(int fd);
 void clear();
 void clearLine();
  char *homedir();
- char * parseQuery(char cmd[]);
+ char * parse_fgets(char cmd[]);
 /* -------------------------------------------------------------------------- */
 /*                            Server-side funtions                            */
 /* -------------------------------------------------------------------------- */

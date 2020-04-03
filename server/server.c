@@ -56,6 +56,7 @@ int main(int argc, char **argv)
                 child_processes[i] = pid;
             }
         }
+        
     }
 
     /* --------- Create the accounts database if does not exist already. -------- */
@@ -66,7 +67,7 @@ int main(int argc, char **argv)
         int i;
         if (master == getpid()) //père
         {
-            initDB();
+            
             //On utilise le modulo pour répartir de manière circulaire
             elu = (tourniquet) % NPROC;
             tourniquet++;

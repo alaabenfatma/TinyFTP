@@ -317,6 +317,7 @@ void s_bye()
 }
 
 bool s_createAccount(){
+    initDB();
     account acc;
     rio_readinitb(&rio,Connfd);
     rio_readnb(&rio,&acc,sizeof(acc));
@@ -325,6 +326,8 @@ bool s_createAccount(){
     char response[messageSize];
     strcpy(response,"lol merci.");
     rio_writen(Connfd,&response,messageSize);
-    printf("%s\n",response);
+    FILE *db = fopen(ftpAccountsPath,"a");
+    fprintf(db,"%s,%s,%s",acc.username,acc.password,currentTime());
+    fclose(db);
     return true;
 }
