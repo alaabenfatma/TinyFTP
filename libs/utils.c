@@ -206,10 +206,12 @@ bool directoryExists(char *path)
 }
 bool initDB()
 {
-    char *path = malloc(messageSize);
-    path = strcat(homedir(),".ftpAccount.db");
+    char path[messageSize];
+    strcpy(path, homedir());
+    strcat(path,".ftpAccount.db");
     printf("%s\n",path);
     FILE *db  = fopen(path,"w");
+
     fclose(db);
     fflush(stdout);
     return true;

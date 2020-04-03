@@ -11,7 +11,7 @@ char username[messageSize];
 bool crashing = false;
 void handler(int s)
 {
-    
+    sleep(1);
     crashing = true;
     printf(MAGENTA BOLD "\nProgram is closing.\n" RESET);
     
@@ -25,7 +25,7 @@ void handler(int s)
         strcpy(filename, strremove(filename, "downloads/"));
         fprintf(tmp, "%s,%d", filename, downloading);
         fclose(tmp);
-        sleep(1);
+        
     }
 
     exit(0);
