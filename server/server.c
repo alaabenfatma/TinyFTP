@@ -60,12 +60,13 @@ int main(int argc, char **argv)
 
     /* --------- Create the accounts database if does not exist already. -------- */
 
-    initDB();
+    
     while (1)
     {
         int i;
         if (master == getpid()) //père
         {
+            initDB();
             //On utilise le modulo pour répartir de manière circulaire
             elu = (tourniquet) % NPROC;
             tourniquet++;

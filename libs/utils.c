@@ -188,23 +188,30 @@ struct stat fileProperties(char *filename)
     stat(filename, &st);
     return st;
 }
+bool directoryExists(char *path)
+{
+    DIR *dir = opendir(path);
+    return (dir != NULL);
+}
+ char *homedir()
+{
+     char *dir = malloc(messageSize);
 
+    if ((dir = getenv("HOME")) == NULL)
+    {
+        dir = getpwuid(getuid())->pw_dir;
+    }
+    strcat(dir,"/");
+    return dir;
+}
 bool initDB()
 {
-    char *fname = malloc(messageSize);
-    strcpy(fname, "~/.TinyFTP/.accounts.db");
-    FILE *f = fopen(fname, "w");
-    if (f == NULL)
-    {
-        mkdir("~/.TinyFTP", 0700);
-        f = fopen(fname, "w");
-        if (f == NULL)
-        {
-            printf(RED BOLD "Server cannot be used because the accounts dataset is not available.\n" RESET);
-            return false;
-            exit(1);
-        }
-    }
+    char *path = malloc(messageSize);
+    path = strcat(homedir(),".ftpAccount.db");
+    printf("%s\n",path);
+    FILE *db  = fopen(path,"w");
+    fclose(db);
+    fflush(stdout);
     return true;
 }
 /* -------------------------------------------------------------------------- */
@@ -402,7 +409,8 @@ int establishConnection(char *ip, int port, int timeout)
 
 int runTimeCheck(int fd, char *arg)
 {
-    if(strstr(arg,"server")!=NULL){
+    if (strstr(arg, "server") != NULL)
+    {
         return fd;
     }
     /* -------------------- Check if "downloads" folder exists -------------------- */
@@ -464,3 +472,4 @@ void connectedClients()
     printf(GREEN INVERTED "Connected clients : %d/%d\n" RESET, busyChildren(), NPROC);
     fflush(stdout);
 }
+

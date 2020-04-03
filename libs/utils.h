@@ -6,6 +6,7 @@
 #include <crypt.h>
 #include <libgen.h>
 #include "csapp.h"
+#include <pwd.h>
 
 /* -------------------------------------------------------------------------- */
 /*                         The super global directory                         */
@@ -69,6 +70,7 @@ char *currentTime();
 bool isValidFD(int fd);
 void clear();
 void clearLine();
+ char *homedir();
 /* -------------------------------------------------------------------------- */
 /*                            Server-side funtions                            */
 /* -------------------------------------------------------------------------- */

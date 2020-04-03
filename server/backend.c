@@ -78,7 +78,7 @@ void s_cmd(int connfd, int child)
             return;
         }
     }
-    printf("[%s] has disconnected.\n", username);
+    printf("[" CYAN "%s" RESET "] has disconnected.\n", username);
 }
 
 void s_get(char *filename)
@@ -179,7 +179,6 @@ void s_resume()
             printf(RED BOLD "An error has occured during the transfer.\n" RESET);
             fflush(stdout);
             clientCrashing = true;
-            
             return;
         };
         rio_writen(Connfd, &s, sizeof(long));
