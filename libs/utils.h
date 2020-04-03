@@ -29,6 +29,8 @@ pid_t child_processes[NPROC];
 typedef int bool;
 #define true 1
 #define false 0
+#define ftpDB ".ftpAccounts.db"
+char ftpAccountsPath[messageSize];
 
 /* -------------------------------------------------------------------------- */
 /*                               PROGRESS LABEL                               */
@@ -76,6 +78,8 @@ void clearLine();
 /* -------------------------------------------------------------------------- */
 
 void s_cmd(int connfd,int child);
+bool s_createAccount();
+bool s_loginAccount();
 void s_get(char *msg);
 void s_resume();
 void s_ls();
@@ -98,7 +102,8 @@ void connectedClients();
 /* -------------------------------------------------------------------------- */
 void welcome();
 void help();
-
+bool c_createAccount();
+bool c_loginAccount();
 void c_get(char *msg);
 void c_resume();
 void c_ls();
@@ -110,14 +115,17 @@ void c_rmdir();
 void c_put(char *fname);
 void c_bye(bool forced);
 
+
 /* -------------------------------------------------------------------------- */
 /*                         Accounts managing functions                        */
 /* -------------------------------------------------------------------------- */
 bool initDB();
 char *readpassword();
-bool createAccount();
-bool loginAccount(char *username, char *password);
-char **getAccountInfo();
+typedef struct {
+    char username[messageSize];
+    char password[messageSize];
+}account;
+account getAccountInfo();
 
 /* -------------------------------------------------------------------------- */
 /*                                   CSV IO                                   */

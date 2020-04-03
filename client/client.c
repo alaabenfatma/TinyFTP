@@ -11,10 +11,11 @@ char username[messageSize];
 bool crashing = false;
 void handler(int s)
 {
+    
+    
+    printf(MAGENTA BOLD "\nProgram is closing.\n" RESET);
     sleep(1);
     crashing = true;
-    printf(MAGENTA BOLD "\nProgram is closing.\n" RESET);
-    
     if (downloading != false)
     {
 
@@ -271,7 +272,17 @@ void c_bye(bool forced)
 {
     exit(0);
 }
-
+bool c_createAccount(){
+    account acc = getAccountInfo();
+    printf("name : %s",acc.username);
+    printf("password : %s\n",acc.password);
+    Rio_writen(clientfd,&acc,sizeof(acc));
+    char response[messageSize];
+    Rio_readinitb(&rio,clientfd);
+    Rio_readnb(&rio,&response,messageSize);
+    printf("%s\n",response);
+    return true;
+}
 int main(int argc, char **argv)
 {
 
@@ -289,7 +300,7 @@ int main(int argc, char **argv)
      */
     clientfd = establishConnection(host, port, 5);
     welcome();
-    char *query = malloc(MAXLINE);
+    char query[messageSize+1];
     Rio_readinitb(&rio, clientfd);
     int clientX = clientfd;
     strcpy(username,"Anonymous");
@@ -302,21 +313,22 @@ int main(int argc, char **argv)
         {
             break;
         }
+        query[strlen(query)-1] = '\0';
         Rio_writen(clientfd, query, messageSize);
         Rio_writen(clientfd,username,messageSize);
         if (StartsWith(query, "get "))
         {
             c_get(query);
         }
-        else if (StartsWith(query, "resume"))
+        else if (!strcmp(query, "resume"))
         {
             c_resume();
         }
-        else if (StartsWith(query, "ls"))
+        else if (!strcmp(query, "ls"))
         {
             c_ls();
         }
-        else if (StartsWith(query, "pwd"))
+        else if (!strcmp(query, "pwd"))
         {
             c_pwd();
         }
@@ -333,7 +345,11 @@ int main(int argc, char **argv)
                 printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
             }
         }
-        else if (StartsWith(query, "clear"))
+        else if (!strcmp(query, "register"))
+        {
+            c_createAccount();
+        }
+        else if (!strcmp(query, "clear"))
         {
             clear();
         }
@@ -365,13 +381,17 @@ int main(int argc, char **argv)
                 printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
             }
         }
-        else if (StartsWith(query, "help"))
+        else if (!strcmp(query, "help"))
         {
             help();
         }
-        else if (StartsWith(query, "bye"))
+        else if (strcmp(query, "bye")==0)
         {
             c_bye(false);
+        }
+        else if (strlen(query)==1)
+        {
+            continue;
         }
         else
         {

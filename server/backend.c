@@ -23,7 +23,7 @@ void s_cmd(int connfd, int child)
 
         Rio_readnb(&rio, &username, messageSize);
         Connfd = runTimeCheck(connfd, "server");
-        printf("[" CYAN "%s" RESET "]" YELLOW " %s" RESET "at %s", username, query, currentTime());
+        printf("[" CYAN "%s" RESET "]" YELLOW " %s" RESET " at %s", username, query, currentTime());
 
         if (strcmp(username, "Anonymous") != 0)
         {
@@ -33,19 +33,20 @@ void s_cmd(int connfd, int child)
         {
             clientLoggedIn = false;
         }
+
         if (StartsWith(query, "get "))
         {
             s_get(getFirstArgument(query));
         }
-        else if (StartsWith(query, "resume"))
+        else if (!strcmp(query, "resume"))
         {
             s_resume();
         }
-        else if (StartsWith(query, "ls"))
+        else if (!strcmp(query, "ls"))
         {
             s_ls();
         }
-        else if (StartsWith(query, "pwd"))
+        else if (!strcmp(query, "pwd"))
         {
             s_pwd();
         }
@@ -73,9 +74,13 @@ void s_cmd(int connfd, int child)
             if (clientLoggedIn)
                 s_put(getFirstArgument(query));
         }
-        else if (StartsWith(query, "bye"))
+        else if (!strcmp(query, "bye"))
         {
             return;
+        }
+        else if (StartsWith(query, "register"))
+        {
+            s_createAccount();
         }
     }
     printf("[" CYAN "%s" RESET "] has disconnected.\n", username);
@@ -309,4 +314,17 @@ void s_put(char *filename)
 void s_bye()
 {
     //IGNORE.
+}
+
+bool s_createAccount(){
+    account acc;
+    rio_readinitb(&rio,Connfd);
+    rio_readnb(&rio,&acc,sizeof(acc));
+    printf("name : %s",acc.username);
+    printf("password : %s\n",acc.password);
+    char response[messageSize];
+    strcpy(response,"lol merci.");
+    rio_writen(Connfd,&response,messageSize);
+    printf("%s\n",response);
+    return true;
 }

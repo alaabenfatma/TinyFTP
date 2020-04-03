@@ -210,11 +210,12 @@ bool initDB()
     char path[messageSize];
     strcpy(path, homedir());
 
-    strcat(path,".ftpAccount.db");
+    strcat(path,ftpDB);
     if(access( path, F_OK ) != -1){
+        strcpy(ftpAccountsPath,path);
         return true;
     }
-    printf("%s\n",path);
+    strcpy(ftpAccountsPath,path);
     FILE *db  = fopen(path,"a");
     fprintf(db,"%s","usrname,pwd,date");
     fclose(db);
@@ -241,42 +242,16 @@ void welcome()
 /* -------------------------------------------------------------------------- */
 /*                         Gather login/register data                         */
 /* -------------------------------------------------------------------------- */
-char **getAccountInfo()
+account getAccountInfo()
 {
-    int i = 0;
-    char **data = malloc(sizeof(char *) * 2);
-    if (!data)
-        return NULL;
-    for (i = 0; i < 2; i++)
-    {
-        data[i] = malloc(messageSize + 1);
-        if (!data[i])
-        {
-            free(data);
-            return NULL;
-        }
-    }
+    account acc;
     printf("username : ");
-    scanf("%s", data[0]);
-    strcpy(data[1], readpassword());
-    return data;
+    Fgets(acc.username,messageSize,stdin);
+    strcpy(acc.password, readpassword());
+    return acc;
 }
 
-/* -------------------------------------------------------------------------- */
-/*   Create an account on the server-side using the data sent by the client   */
-/* -------------------------------------------------------------------------- */
-bool createAccount(char *usr, char *pwd)
-{
-    return true;
-}
 
-/* -------------------------------------------------------------------------- */
-/*                Connect to an existing account on the Server                */
-/* -------------------------------------------------------------------------- */
-bool loginAccount(char *usr, char *pwd)
-{
-    return true;
-}
 
 /* -------------------------------------------------------------------------- */
 /*                              Create a CSV file                             */
