@@ -96,6 +96,7 @@ void s_get(char *filename)
     if (f == NULL)
     {
         strcpy(msg, "-");
+         printf("Could not open file. Operation will be ignored.\n");
     }
     Rio_writen(Connfd, msg, 1);
     if (StartsWith(msg, "-"))
@@ -159,6 +160,7 @@ void s_resume()
     if (f == NULL)
     {
         strcpy(msg, "-");
+        printf("Could not open file. Operation will be ignored.\n");
     }
     Rio_writen(Connfd, msg, sizeof(char));
     if (StartsWith(msg, "-"))
