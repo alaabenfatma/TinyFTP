@@ -84,7 +84,8 @@ void s_cmd(int connfd, int child)
         }
         else if (!strcmp(query, "login"))
         {
-            s_loginAccount();
+            if (!clientLoggedIn)
+                s_loginAccount();
         }
     }
     printf("[" CYAN "%s" RESET "] has disconnected.\n", username);
@@ -379,10 +380,12 @@ void s_loginAccount()
 
     //check matching account data.
     char name[256], pwd[256];
-    while(fgets(name, 256, db)!=false) {
-        fscanf(db, "%s", name);
+    while (fgets(name, 256, db) != false)
+    {
+        
         strcpy(name, strtok(name, "|"));
         strcpy(pwd, strtok(NULL, "|"));
+        fflush(stdout);
         if (!strcmp(name, acc.username))
         {
             if (!strcmp(pwd, acc.password))
@@ -390,7 +393,7 @@ void s_loginAccount()
                 strcpy(response, "+");
                 fclose(db);
                 rio_writen(Connfd, &response, messageSize);
-                printf("[SERVER] User, %s, has logged in.\n",name);
+                printf("[SERVER] User, %s, has logged in.\n", name);
                 return;
             }
         }
