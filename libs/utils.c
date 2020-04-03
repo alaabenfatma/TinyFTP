@@ -436,6 +436,7 @@ void help()
     printf(BOLD "(*) All the commands that are in blue require you to log in.\n\n" RESET);
     printf(BOLD "login " RESET ": login is used to log into an account\n");
     printf(BOLD "register " RESET ": register command is used to create an account\n");
+    printf(BOLD "disconnect " RESET ": disconnect command is used to logout.\n");
     printf(BOLD "get " RESET ": get command is used to download a file from the FTP server\n");
     printf(BOLD "resume " RESET ": resume command is used to resume a failed download\n");
     printf(BOLD "ls " RESET ": ls command is used to list contents of a directory\n");
