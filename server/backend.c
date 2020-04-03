@@ -16,6 +16,7 @@ void s_cmd(int connfd, int child)
     char query[messageSize];
     clientCrashing = false;
     Rio_readinitb(&rio, Connfd);
+    Rio_readnb(&rio, &username, messageSize);
     while ((n = Rio_readnb(&rio, query, messageSize)) != 0)
     {
         //Remove the line that indicates the number of connected clients.
@@ -213,9 +214,8 @@ void s_ls()
         type = EOF;
         Rio_writen(Connfd, &type, messageSize);
         Rio_writen(Connfd, &type, messageSize);
-
-        closedir(current_directory);
     }
+    //closedir(current_directory);
 }
 void s_pwd()
 {

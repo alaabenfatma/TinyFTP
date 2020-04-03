@@ -144,6 +144,7 @@ int main(int argc, char **argv)
                 //Ce libère
                 setfield(elu_fils, '0', busy);
                 fflush(busy);
+                
                 connectedClients();
             }
         }

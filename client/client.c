@@ -14,9 +14,10 @@ void handler(int s)
     
     crashing = true;
     printf(MAGENTA BOLD "\nProgram is closing.\n" RESET);
-    usleep(70000);
+    
     if (downloading != false)
     {
+
         ssize_t size = fileProperties(filename).st_size;
         printf("You are still downloading the file : loaded bytes %ld\n", size);
         FILE *tmp;
@@ -24,6 +25,7 @@ void handler(int s)
         strcpy(filename, strremove(filename, "downloads/"));
         fprintf(tmp, "%s,%d", filename, downloading);
         fclose(tmp);
+        sleep(1);
     }
 
     exit(0);
@@ -291,6 +293,7 @@ int main(int argc, char **argv)
     Rio_readinitb(&rio, clientfd);
     int clientX = clientfd;
     strcpy(username,"Anonymous");
+    Rio_writen(clientfd,username,messageSize);
     while (1)
     {
         clientfd = runTimeCheck(clientX, "client");

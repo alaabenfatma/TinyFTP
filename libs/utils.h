@@ -21,7 +21,7 @@ FILE *busy;
 
 #define buffSize 256    //must be >= 2
 #define messageSize 512 //must be >= 2
-#define NPROC 3         //must be >= 2
+#define NPROC 4         //must be >= 2
 pid_t child_processes[NPROC];
 #define FOLDER "downloads/"
 //boolean type

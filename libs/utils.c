@@ -402,7 +402,9 @@ int establishConnection(char *ip, int port, int timeout)
 
 int runTimeCheck(int fd, char *arg)
 {
-
+    if(strstr(arg,"server")!=NULL){
+        return fd;
+    }
     /* -------------------- Check if "downloads" folder exists -------------------- */
     DIR *dir = opendir("downloads");
     if (!dir)
