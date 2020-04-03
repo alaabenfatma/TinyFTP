@@ -234,7 +234,7 @@ bool initDB()
     printf("Accouts are contained in : %s\n",ftpAccountsPath);
 
     FILE *db  = fopen(path,"a");
-    fprintf(db,"%s","usrname,pwd,date");
+    fprintf(db,"%s","usrname,pwd,date\n");
     fclose(db);
     fflush(stdout);
     return true;

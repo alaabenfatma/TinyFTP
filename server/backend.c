@@ -96,7 +96,7 @@ void s_get(char *filename)
     if (f == NULL)
     {
         strcpy(msg, "-");
-         printf("Could not open file. Operation will be ignored.\n");
+        printf("Could not open file. Operation will be ignored.\n");
     }
     Rio_writen(Connfd, msg, 1);
     if (StartsWith(msg, "-"))
@@ -155,7 +155,7 @@ void s_resume()
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
     msg[0] = securityBreachAttempt(filename);
-    
+
     f = fopen(filename, "r");
     if (f == NULL)
     {
@@ -316,18 +316,42 @@ void s_bye()
     //IGNORE.
 }
 
-bool s_createAccount(){
+bool s_createAccount()
+{
     initDB();
     account acc;
-    rio_readinitb(&rio,Connfd);
-    rio_readnb(&rio,&acc,sizeof(acc));
-    printf("name : %s",acc.username);
-    printf("password : %s\n",acc.password);
+    rio_readinitb(&rio, Connfd);
+    rio_readnb(&rio, &acc, sizeof(acc));
     char response[messageSize];
-    strcpy(response,"lol merci.");
-    rio_writen(Connfd,&response,messageSize);
-    FILE *db = fopen(ftpAccountsPath,"a");
-    fprintf(db,"%s,%s,%s",acc.username,acc.password,currentTime());
+    
+    FILE *db = fopen(ftpAccountsPath, "a+");
+    if (db == NULL)
+    {
+        strcpy(response, "Account could not be created. Server-side error.");
+       printf("%s\n",response);
+        fclose(db);
+        rio_writen(Connfd, &response, messageSize);
+        return false;
+    }
+    //Check if name already exists.
+    char name[256];
+    while ( !feof(db) )
+    {   fscanf(db, "%s", name);
+        strcpy(name, strtok(name,","));
+        fflush(stdout);
+        if (!strcmp(name, acc.username))
+        {
+            strcpy(response, RED"username already exists. Try again."RESET);
+            fclose(db);
+            rio_writen(Connfd, &response, messageSize);
+            return false;
+        }
+    }
+    fprintf(db, "%s,%s,%s", acc.username, acc.password, currentTime());
+    strcpy(response, GREEN"Your account has been created :"RESET);
+    strcat(response,acc.username);
+    printf("The account has been created.\n");
+    rio_writen(Connfd, &response, messageSize);
     fclose(db);
     return true;
 }

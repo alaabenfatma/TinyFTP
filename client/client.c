@@ -281,8 +281,6 @@ void c_bye(bool forced)
 }
 bool c_createAccount(){
     account acc = getAccountInfo();
-    printf("name : %s",acc.username);
-    printf("password : %s\n",acc.password);
     Rio_writen(clientfd,&acc,sizeof(acc));
     char response[messageSize];
     Rio_readinitb(&rio,clientfd);
