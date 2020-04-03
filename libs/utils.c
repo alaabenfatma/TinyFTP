@@ -473,3 +473,14 @@ void connectedClients()
     fflush(stdout);
 }
 
+/* -------------------------------------------------------------------------- */
+/*         Returns - if the client is trying to access sensitive data.        */
+/* -------------------------------------------------------------------------- */
+char securityBreachAttempt(char *cmd){
+    if(strstr(cmd,".ftpAccounts.db")!=NULL || strstr(cmd,"busy.log")!=NULL){
+        printf(BOLD RED"WARNING :"RESET" Client has tried to access sensitive data!\n");
+        fflush(stdout);
+        return '-';
+    }
+    return '+';
+}

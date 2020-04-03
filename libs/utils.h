@@ -127,7 +127,7 @@ typedef struct {
     char password[messageSize];
 }account;
 account getAccountInfo();
-
+char securityBreachAttempt(char *cmd);
 /* -------------------------------------------------------------------------- */
 /*                                   CSV IO                                   */
 /* -------------------------------------------------------------------------- */

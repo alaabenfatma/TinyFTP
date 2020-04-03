@@ -91,8 +91,7 @@ void s_get(char *filename)
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
-    strcpy(msg, "+");
-    printf("you tried to open : %s\n", filename);
+    msg[0] = securityBreachAttempt(filename);
     f = fopen(filename, "rb");
     if (f == NULL)
     {
@@ -128,7 +127,6 @@ void s_get(char *filename)
 void s_resume()
 {
 
-    int x = 0;
     /* ---------------------------- Init resume data ---------------------------- */
 
     rio_t rio;
@@ -151,18 +149,18 @@ void s_resume()
     long position = strtol(p, eptr, 10);
     fflush(stdout);
     /* --------------------------- Resuming the upload -------------------------- */
-    printf("Resuming transfer.\n");
+    printf("Resuming transfer...\n");
     FILE *f;
     char buffer[buffSize];
     char *msg = malloc(sizeof(char));
-    strcpy(msg, "+");
+    msg[0] = securityBreachAttempt(filename);
+    
     f = fopen(filename, "r");
     if (f == NULL)
     {
         strcpy(msg, "-");
     }
     Rio_writen(Connfd, msg, sizeof(char));
-    printf("%d\n", x++);
     if (StartsWith(msg, "-"))
     {
         return;
@@ -191,7 +189,7 @@ void s_resume()
         printProgress("Uploading : ", position, size);
     }
     fclose(f);
-    printf("File has been uploaded.");
+    printf("File has been uploaded.\n");
     fflush(stdout);
 }
 void s_ls()

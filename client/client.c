@@ -4,18 +4,18 @@
 #include "../libs/utils.h"
 int clientfd, port;
 char filename[FILENAME_MAX];
+char filename_path[FILENAME_MAX];
 char *host;
 rio_t rio;
 bool loggedIn = false;
 char username[messageSize];
 bool crashing = false;
-char global_query[messageSize];
 void handler(int s)
 {
     
-    
-    printf(MAGENTA BOLD "\nProgram is closing.\n" RESET);
     sleep(1);
+    printf(BOLD "\nProgram is closing.\n" RESET);
+    
     crashing = true;
     if (downloading != false)
     {
@@ -25,7 +25,8 @@ void handler(int s)
         FILE *tmp;
         tmp = fopen("crash.log", "w");
         strcpy(filename, strremove(filename, "downloads/"));
-        fprintf(tmp, "%s,%d", getFirstArgument(global_query), downloading);
+        
+        fprintf(tmp, "%s,%d", filename_path, downloading);
         fclose(tmp);
         
     }
@@ -51,9 +52,8 @@ void c_get(char *query)
 
     ssize_t original_size;
     rio_readnb(&rio, &original_size, sizeof(original_size));
-
+    strcpy(filename_path,getFirstArgument(query));
     strcpy(filename, "downloads/");
-
     strcat(filename, fileBaseName(getFirstArgument(query)));
     gettimeofday(&start, NULL);
     FILE *f;
@@ -111,6 +111,7 @@ void c_resume()
 
     strcpy(filename, "downloads/");
     char *fname = nameOfCrashedFile();
+    strcpy(filename_path,fname);
     if(strstr(fname,"/")!=NULL){
         strcpy(fname,fileBaseName(fname));
     }
@@ -320,7 +321,6 @@ int main(int argc, char **argv)
             break;
         }
         strcpy(query, parse_fgets(query));
-        strcpy(global_query,query);
         Rio_writen(clientfd, query, messageSize);
         Rio_writen(clientfd,username,messageSize);
         if (StartsWith(query, "get "))
@@ -403,7 +403,7 @@ int main(int argc, char **argv)
         else
         {
             if (strlen(query) > 0)
-                printf(MAGENTA "This command is unknown.\n" RESET);
+                printf(MAGENTA BOLD "ERROR :" RESET" Command could not be executed. Try again.\n");
         }
         fflush(stdout);
     }
