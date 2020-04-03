@@ -71,7 +71,7 @@ char *getFirstArgument(char cmd[])
     int i, j = 0;
     if (StartsWith(cmd, "rm -r"))
     {
-        for (i = 6; i < strlen(cmd) - 1; i++)
+        for (i = 6; i < strlen(cmd); i++)
         {
             argument[j] = cmd[i];
             argument[j + 1] = '\0';
@@ -87,7 +87,7 @@ char *getFirstArgument(char cmd[])
             break;
         }
     }
-    for (i = i + 1; i < strlen(cmd) - 1; i++)
+    for (i = i + 1; i < strlen(cmd); i++)
     {
         argument[j] = cmd[i];
         argument[j + 1] = '\0';
@@ -112,6 +112,20 @@ char *strremove(char *str, const char *sub)
         }
     }
     return str;
+}
+
+/* -------------------------------------------------------------------------- */
+/*                                 Parse query                                */
+/* -------------------------------------------------------------------------- */
+char * parseQuery(char cmd[])
+{
+    size_t len = strlen(cmd);
+
+    if(len > 0 && cmd[len - 1] == '\n')
+    {
+       cmd[len - 1] = '\0';
+    }
+    return cmd;
 }
 
 /* ------------------------ return false if directory ----------------------- */

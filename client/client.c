@@ -300,7 +300,7 @@ int main(int argc, char **argv)
      */
     clientfd = establishConnection(host, port, 5);
     welcome();
-    char query[messageSize+1];
+    char query[messageSize];
     Rio_readinitb(&rio, clientfd);
     int clientX = clientfd;
     strcpy(username,"Anonymous");
@@ -309,11 +309,11 @@ int main(int argc, char **argv)
     {
         clientfd = runTimeCheck(clientX, "client");
         printf("[%d]ftp>", clientfd);
-        if (fgets(query, messageSize, stdin) == NULL)
+        if (Fgets(query, sizeof(query), stdin) == NULL)
         {
             break;
         }
-        query[strlen(query)-1] = '\0';
+        strcpy(query, parseQuery(query));
         Rio_writen(clientfd, query, messageSize);
         Rio_writen(clientfd,username,messageSize);
         if (StartsWith(query, "get "))
