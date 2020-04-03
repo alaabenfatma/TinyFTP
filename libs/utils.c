@@ -206,12 +206,17 @@ bool directoryExists(char *path)
 }
 bool initDB()
 {
+    
     char path[messageSize];
     strcpy(path, homedir());
-    strcat(path,".ftpAccount.db");
-    printf("%s\n",path);
-    FILE *db  = fopen(path,"w");
 
+    strcat(path,".ftpAccount.db");
+    if(access( path, F_OK ) != -1){
+        return true;
+    }
+    printf("%s\n",path);
+    FILE *db  = fopen(path,"a");
+    fprintf(db,"%s","usrname,pwd,date");
     fclose(db);
     fflush(stdout);
     return true;
