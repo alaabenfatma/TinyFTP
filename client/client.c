@@ -75,7 +75,7 @@ void c_get(char *query)
     double secs = (double)(stop.tv_usec - start.tv_usec) / 1000000 + (double)(stop.tv_sec - start.tv_sec);
     off_t file_size = fileProperties(filename).st_size;
     printf(GREEN "File has been downloaded successfully.\n" RESET);
-    printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, (file_size / 1024 / secs));
+    printf("%ld bytes received in %f seconds (%f Kbytes/s)\n", file_size, secs, ((file_size /1024) / secs));
 }
 
 /* -------------------------------------------------------------------------- */
@@ -310,6 +310,9 @@ void disconnect()
     loggedIn = false;
     strcpy(username, "Anonymous");
 }
+void connectPlease(){
+    printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET "login: to connect to an account.\nregister: to create an account.\n");
+}
 int main(int argc, char **argv)
 {
 
@@ -369,7 +372,7 @@ int main(int argc, char **argv)
                 c_mkdir();
             else
             {
-                printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
+                connectPlease();
             }
         }
         else if (!strcmp(query, "register"))
@@ -395,7 +398,7 @@ int main(int argc, char **argv)
                 c_rmdir();
             else
             {
-                printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
+                connectPlease();
             }
         }
         else if (StartsWith(query, "rm "))
@@ -404,7 +407,7 @@ int main(int argc, char **argv)
                 c_rm();
             else
             {
-                printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
+                connectPlease();
             }
         }
 
@@ -414,7 +417,7 @@ int main(int argc, char **argv)
                 c_put(getFirstArgument(query));
             else
             {
-                printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET);
+                connectPlease();
             }
         }
         else if (!strcmp(query, "help"))

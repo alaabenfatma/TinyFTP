@@ -210,8 +210,7 @@ bool directoryExists(char *path)
 char *homedir()
 {
     char *dir = malloc(messageSize);
-
-    if ((dir = getenv("HOME")) == NULL)
+    if (!(dir = getenv("HOME")))
     {
         dir = getpwuid(getuid())->pw_dir;
     }
@@ -220,7 +219,7 @@ char *homedir()
 }
 void initDB()
 {
-    
+
     char path[messageSize];
     char temp[messageSize];
     strcpy(path, homedir());
