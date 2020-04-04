@@ -4,8 +4,13 @@ int master = 0;
 void handler(int signal)
 {
     if (getpid() == master)
+    {
         printf(BOLD MAGENTA "THE SERVER IS SELF-DESTRUCTING\n" RESET);
-    remove("busy.log");
+        remove("busy.log");
+    }
+    else{
+        Kill(getpid(),SIGINT);
+    }
     exit(0);
 }
 
@@ -36,11 +41,11 @@ int main(int argc, char **argv)
 
     pid_t *child_processes; //All child processes
     child_processes = malloc(NPROC * sizeof(pid_t));
-    
+
     busy = initfield(); //Fichier qui indique un un serveur est occupé ou pas
-    
+
     master = getpid();
-    if(master == getpid())
+    if (master == getpid())
         initDB();
 
     //AJOUTE : Gestion des clients par les NPROC fils
