@@ -1,5 +1,4 @@
 # PROJET SERVEUR FTP
-## Alaa BEN FATMA & Wassim AYARI
 ---
 📚 English readme will be coming soon.....
 
