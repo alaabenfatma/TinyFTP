@@ -14,7 +14,7 @@ Via SSH
 
 >git clone git@github.com:alaabenfatma/TinyFTP.git
 
-Sinon, vous pouvez télécharger le projet en tant qu'archive .zip ou faire un forkt.
+Sinon, vous pouvez télécharger le projet en tant qu'archive .zip ou faire un fork.
 ---
 
 Compilation:
