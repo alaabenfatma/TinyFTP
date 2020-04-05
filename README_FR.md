@@ -21,7 +21,9 @@ Differents test à réaliser:
 
 ### Commande get:
 
->get tests/small.txt (A noter: get devrait également fonctionner avec les autres type de fichier: pdf, jpg...)
+>get tests/Docs/small.txt 
+
+_(A noter: get devrait également fonctionner avec les autres type de fichier: pdf, jpg...)_
 
 
 Le dossier tests contient plusieurs types de fichier (texte, image, gif, sons...), on pourra tester get sur ces fichiers.
@@ -62,7 +64,9 @@ On remarquera qu'il sera impossible pour le prochain client de se connecter jusq
 
 >rm -r tests/Sound
 
->put nom_fichier (Le fichier devra se trouver dans le répertoire client!!)
+>put nom_fichier 
+
+_(Le fichier devra se trouver dans le répertoire client!!)_
 
 Normalement, on remarquera qu'une erreur surviendra car vous n'êtes pas connecté.
 
