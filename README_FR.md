@@ -1,6 +1,18 @@
 # PROJET SERVEUR FTP
 ## Alaa BEN FATMA & Wassim AYARI
 ---
+## Installation
+### Clone
+Via HTTPS
+
+>git clone https://github.com/alaabenfatma/TinyFTP.git
+
+Via SSH
+
+>git clone git@github.com:alaabenfatma/TinyFTP.git
+
+Sinon, vous pouvez télécharger le projet en tant qu'archive .zip ou faire un forkt.
+---
 
 Compilation:
 >make clean
