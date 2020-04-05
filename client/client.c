@@ -212,6 +212,10 @@ void c_mkdir()
         printf(RED "Directory could not be created.\n" RESET);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/*                        Remove a file from the server                       */
+/* -------------------------------------------------------------------------- */
 void c_rm()
 {
     /* -------- We have to ONLY check if the rm got executed well or not -------- */
@@ -223,6 +227,10 @@ void c_rm()
         printf(RED "File could not be removed.\n" RESET);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/*                     Remove a directory from the server                     */
+/* -------------------------------------------------------------------------- */
 void c_rmdir()
 {
     /* -------- We have to ONLY check if the rm -r got executed well or not -------- */
@@ -234,6 +242,10 @@ void c_rmdir()
         printf(RED "Directory could not be removed.\n" RESET);
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/*                         Upload a file to the server                        */
+/* -------------------------------------------------------------------------- */
 void c_put(char *fname)
 {
     FILE *f;
@@ -275,10 +287,18 @@ void c_put(char *fname)
     printf(GREEN BOLD "File (%s) has been uploaded successfully.\n" RESET, fname);
     fflush(stdout);
 }
+
+/* -------------------------------------------------------------------------- */
+/*                         Disconnect from the server.                        */
+/* -------------------------------------------------------------------------- */
 void c_bye(bool forced)
 {
     exit(0);
 }
+
+/* -------------------------------------------------------------------------- */
+/*                             Create an account.                             */
+/* -------------------------------------------------------------------------- */
 void c_createAccount()
 {
     account acc = getAccountInfo();
@@ -288,6 +308,10 @@ void c_createAccount()
     Rio_readnb(&rio, &response, messageSize);
     printf("%s\n", response);
 }
+
+/* -------------------------------------------------------------------------- */
+/*                        Log into an existing account                        */
+/* -------------------------------------------------------------------------- */
 void c_loginAccount()
 {
     account acc = getAccountInfo();
@@ -305,14 +329,26 @@ void c_loginAccount()
         printf("Failed to login, try again.\n");
     }
 }
+
+/* -------------------------------------------------------------------------- */
+/*                                   Logout                                   */
+/* -------------------------------------------------------------------------- */
 void disconnect()
 {
     loggedIn = false;
     strcpy(username, "Anonymous");
 }
+
+/* -------------------------------------------------------------------------- */
+/*          Ask the user to connect if the wants to edit the server.          */
+/* -------------------------------------------------------------------------- */
 void connectPlease(){
     printf(BLUE BOLD "Log into your account to make a modification on the server-side.\n" RESET "login: to connect to an account.\nregister: to create an account.\n");
 }
+
+/* -------------------------------------------------------------------------- */
+/*                              The main program                              */
+/* -------------------------------------------------------------------------- */
 int main(int argc, char **argv)
 {
 
