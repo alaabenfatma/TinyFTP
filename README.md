@@ -114,10 +114,6 @@ Normalement, on remarquera qu'une erreur surviendra car vous n'êtes pas connect
 ---
 
 ### Se déconnecter:
->login
-
->mon_username
-
->mon_mdp
+>disconnect
 
 On pourra maintenant tester les commandes mkdir, rm et rm -r
