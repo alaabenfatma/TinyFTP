@@ -292,7 +292,7 @@ char *readpassword()
 /* -------------------------------------------------------------------------- */
 void welcome()
 {
-    printf("The server is " BOLD "read-only" RESET ". Please login if you want to make any modifications.\n");
+    printf("The server is " BOLD "read-only" RESET ". Please login if you want to make any modifications.\nType "BOLD"help"RESET" for details.\n");
 }
 
 /* -------------------------------------------------------------------------- */
