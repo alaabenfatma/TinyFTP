@@ -98,6 +98,7 @@ int main(int argc, char **argv)
                 {
                     elu = i;
                     pid_elu = child_processes[elu];
+                    break;
                 }
             }
 
