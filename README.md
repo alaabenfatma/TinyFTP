@@ -110,9 +110,11 @@ Normalement, on remarquera qu'une erreur surviendra car vous n'êtes pas connect
 
 >mon_mdp
 
+On pourra maintenant tester les commandes mkdir, rm, rm -r et put.
+
 ---
 
 ### Se déconnecter:
 >disconnect
 
-On pourra maintenant tester les commandes mkdir, rm et rm -r
+
