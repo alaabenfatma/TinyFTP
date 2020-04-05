@@ -382,7 +382,7 @@ int main(int argc, char **argv)
         else if (!strcmp(query, "login"))
         {
             if(loggedIn){
-                printf("%s, you are already logged into your account.\n",username);
+                printf("%s, you are already logged into your account.\nUse the command "BOLD"disconnect"RESET" to logout.\n",username);
                 
             }
             else
