@@ -1,5 +1,5 @@
 PROJET SERVEUR FTP
-AYARI WASSIM + BEN FATMA ALAA
+Alaa BEN FATMA & Wassim AYARI
 
 Compilation:
 >make clean
@@ -16,7 +16,7 @@ Exécution client:
 
 Differents test à réaliser:
 
-###Commande get:###
+###Commande get:
 
 >get tests/small.txt (A noter: get devrait également fonctionner avec les autres type de fichier: pdf, jpg...)
 
@@ -24,25 +24,25 @@ Differents test à réaliser:
 Le dossier tests contient plusieurs types de fichier (texte, image, gif, sons...), on pourra tester get sur ces fichiers.
 
 
-###Gestion de panne:###
+###Gestion de panne:
 
 >get tests/heavy.txt
 >Ctrl-c 
 >./client <adresse>
 >resume
 
-###Equilibrage de charge###
+###Equilibrage de charge
 Connecter plus de NPROC client. Le serveur affichera comment il affecte les clients aux differents fils.
 On remarquera qu'il sera impossible pour le prochain client de se connecter jusqu'à ce qu'un serveur ce libère.
 
-###Exemples avec les commandes incorporés:###
+###Exemples avec les commandes incorporés:
 >ls 
 >cd tests/Docs
 >pwd
 >clear
 >bye
 
-###Commandes necessitant un login:###
+###Commandes necessitant un login:
 >mkdir mon_dossier
 >rm tests/Docs/small.txt
 >rm -r tests/Sound
@@ -50,12 +50,17 @@ On remarquera qu'il sera impossible pour le prochain client de se connecter jusq
 
 Normalement, on remarquera qu'une erreur surviendra car vous n'êtes pas connecté.
 
-###Créer un login:###
+###Créer un login:
 >register
 >mon_username
 >mon_mdp
 
-###Se connecter:###
+###Se connecter:
+>login
+>mon_username
+>mon_mdp
+
+###Se déconnecter:
 >login
 >mon_username
 >mon_mdp
