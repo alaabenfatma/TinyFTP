@@ -43,6 +43,7 @@ _(A noter: get devrait également fonctionner avec les autres type de fichier: p
 
 
 Le dossier tests contient plusieurs types de fichier (texte, image, gif, sons...), on pourra tester get sur ces fichiers.
+
 ---
 
 ### Gestion de panne:
@@ -54,12 +55,15 @@ Le dossier tests contient plusieurs types de fichier (texte, image, gif, sons...
 >./client <adresse>
   
 >resume
+
 ---
 ### Equilibrage de charge
 
 Connecter plus de NPROC client. Le serveur affichera comment il affecte les clients aux differents fils.
 On remarquera qu'il sera impossible pour le prochain client de se connecter jusqu'à ce qu'un serveur ce libère.
+
 ---
+
 ### Exemples avec les commandes incorporés:
 
 >ls 
@@ -71,7 +75,9 @@ On remarquera qu'il sera impossible pour le prochain client de se connecter jusq
 >clear
 
 >bye
+
 ---
+
 ### Commandes necessitant un login:
 
 >mkdir mon_dossier
@@ -85,7 +91,9 @@ On remarquera qu'il sera impossible pour le prochain client de se connecter jusq
 _(Le fichier devra se trouver dans le répertoire client!!)_
 
 Normalement, on remarquera qu'une erreur surviendra car vous n'êtes pas connecté.
+
 ---
+
 ### Créer un login:
 
 >register
@@ -93,14 +101,18 @@ Normalement, on remarquera qu'une erreur surviendra car vous n'êtes pas connect
 >mon_username
 
 >mon_mdp
+
 ---
+
 ### Se connecter:
 >login
 
 >mon_username
 
 >mon_mdp
+
 ---
+
 ### Se déconnecter:
 >login
 
